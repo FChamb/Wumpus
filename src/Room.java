@@ -1,24 +1,13 @@
 public class Room {
-    private int xCoord;
-    private int yCoord;
-    private int attribute = 0;
+    private int attribute;
+    private boolean playerInRoom = false;
 
-    public Room(int xCoord, int yCoord) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
+    public Room() {
+        this.attribute = 0;
     }
 
-    public Room(int xCoord, int yCoord, int attribute) {
-        this(xCoord, yCoord);
+    public Room(int attribute) {
         this.attribute = attribute;
-    }
-
-    public int getxCoord() {
-        return this.xCoord;
-    }
-
-    public int getyCoord() {
-        return this.yCoord;
     }
 
     public int getAttribute() {
@@ -27,5 +16,17 @@ public class Room {
 
     public void setAttribute(int attribute) {
         this.attribute = attribute;
+    }
+
+    public boolean getPlayerInRoom() {
+        return this.playerInRoom;
+    }
+
+    public void setPlayerInRoom(boolean playerInRoom) {
+        this.playerInRoom = playerInRoom;
+    }
+
+    public String toString() {
+        return " " + this.attribute + " ";
     }
 }
