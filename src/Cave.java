@@ -24,6 +24,7 @@ public class Cave {
     }
 
     public void generateObstacles() {
+        int numOfObs = this.numOfPits + this.numOfSupBats + 3;
         int numPits = 0;
         int numBats = 0;
         boolean treasure = true;
@@ -60,17 +61,27 @@ public class Cave {
                     case 4:
                         if (player) {
                             this.cave[i][j].setPlayerInRoom(true);
+                            this.player.setCoords(i, j);
                             player = false;
                             break;
                         }
                 }
             }
         }
-        System.out.println(numPits + " " + numBats);
-        if (numPits != this.numOfPits || numBats != this.numOfSupBats || treasure) {
+        if (numPits != this.numOfPits || numBats != this.numOfSupBats || treasure || wumpus || player) {
             clear();
             generateObstacles();
         }
+    }
+
+    public boolean validPath() {
+        int x = this.player.getCoords()[0];
+        int y = this.player.getCoords()[1];
+        boolean valid = false;
+        while (!valid) {
+
+        }
+        return false;
     }
 
     public void clear() {
