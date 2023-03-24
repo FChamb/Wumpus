@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 // created to write the checking code without worrying about merge conflicts in the main cave class
 public class TestChecking {
@@ -10,6 +11,7 @@ public class TestChecking {
     private static Boolean wumpusAlive = true;
     private static Boolean treasureFound = false;
     private static Boolean lost = false;
+    private static Boolean won = false;
 
     
     // Things this class needs:
@@ -21,6 +23,40 @@ public class TestChecking {
 
     public static void main(String[] args){
         createNumbers();
+        playGame();
+    }
+
+    // Method to play through the motions of the game
+    public static void playGame(){
+        placePlayer();
+        while(!won && !lost){
+            // get the players current position
+            int[] coords = cave.getPlayer().getCoords();
+            
+            // check current cell is safe
+            checkCell(coords[0], coords[1]);
+            // Stop playing if checking the players position determined a loss (can honestly just move this outside the loop)
+            if(won || lost){
+                return;
+            }
+
+            // print out the room number the player is in
+            int roomNumber = roomNumbers.get(coords[0]).get(coords[1]);
+            DisplayGame.printRoom(roomNumber);
+
+            // print the cave details for testing purposes
+            printCaveDetails();
+
+            // check content of neighbouring cells
+            ArrayList<Integer> neighbours = checkNeighbours(coords[0], coords[1]);
+
+            // print out the neighbouring cells
+            DisplayGame.printNeighbours(neighbours);
+
+            // get the players next move
+            DisplayGame.getMove(neighbours);
+            System.out.println();
+        }
     }
     
     
@@ -35,6 +71,16 @@ public class TestChecking {
             }
         }
     }
+
+    public static void printCaveDetails(){
+        for(int i = 0; i < cave.getLayout().length; i++){
+            for(int j = 0; j < cave.getLayout()[i].length; j++){
+                System.out.print(cave.getLayout()[i][j].toString().substring(1));
+                System.out.print(roomNumbers.get(i).get(j));
+            }
+            System.out.println();
+        }
+    }
     
     // Method to check the current cell
     public static void checkCell(int row, int column){
@@ -43,27 +89,30 @@ public class TestChecking {
         if(room.getWumpusInRoom()){
             // action performed if the wumpus is in the room
             if(wumpusAlive){
+                DisplayGame.printWumpusLoss();
                 lost = true; // set the game as having been lost
             }
         }
 
         // Check the different room types
         String type = room.getType();
-        if(type.equals("o")){
-            // action performed if it is a pit room
+        if(type.equals("o")){ // pit room
+            DisplayGame.printPitLoss();
             lost = true; // set the game as having been lost
         }
-        if(type.equals("w")){
-            // action performed if it is a super bat room
+        if(type.equals("w")){ // superbat room
+            DisplayGame.printBat();
+            // update the players position
+            placePlayer();
         }
-        if(type.equals("G")){
-            // action performed if it is a treasure room
+        if(type.equals("G")){ // treasure room
+            DisplayGame.printTreasureFound();
             treasureFound = true; // set the treasure as having been found
         }
-        if(type.equals("X")){
-            // action performed if it the exit
+        if(type.equals("X")){ // exit room
             if(treasureFound){
-                // action to be performed if that game has been won
+                DisplayGame.printVictory();
+                won = true;
             }
         }
     }
@@ -128,5 +177,76 @@ public class TestChecking {
             column = 0;
         }
         return column;
+    }
+
+    // Method to generate a random position on the board
+    public static int[] randomPosition(){
+        int[] coords = new int[2];
+        Random random = new Random();
+        coords[0] = random.nextInt(cave.getLayout().length);
+        coords[1] = random.nextInt(cave.getLayout()[0].length);
+        return coords;
+    }
+
+    // Method to check the place the player is being placed is valid
+    public static int[] validatePlayer(){
+        int[] coords;
+        Boolean valid = false;
+        do {
+            coords = randomPosition();
+            Room room = cave.getLayout()[coords[0]][coords[1]];
+            // if the room is not a pit and does not contain the wumpus drop the player there
+            if(!room.getWumpusInRoom() && !room.getType().equals("o")){
+                valid = true;
+            }
+        }
+        while(!valid);
+        return coords;
+    }
+
+    // Method to place the player and the wumpus in the cave
+    public static void placePlayer(){
+        int[] coords = validatePlayer();
+        cave.getPlayer().setCoords(coords[0], coords[1]);
+    }
+    public static void placeWumpus(){
+        int[] coords = randomPosition();
+        cave.getWumpus().setCoords(coords[0], coords[1]);
+    }
+
+    // Method to move with a provided room number (there is definitely a better way to do this that i will think of another time)
+    public static void moveRoom(int roomNumber){
+        for(int i = 0; i < roomNumbers.size(); i++){
+            for(int j = 0; j < roomNumbers.size(); j++){
+                if(roomNumbers.get(i).get(j) == roomNumber){
+                    cave.getPlayer().setCoords(i, j);
+                    return;
+                }
+            }
+        }
+    }
+
+    // Method to shoot with a provided room number
+    public static void shootRoom(int roomNumber){
+        // Shooting does nothing if the wumpus is dead
+        if(!wumpusAlive){
+            return;
+        }
+        for(int i = 0; i < roomNumbers.size(); i++){
+            for(int j = 0; j < roomNumbers.size(); j++){
+                if(roomNumbers.get(i).get(j) == roomNumber){
+                    if(cave.getLayout()[i][j].getWumpusInRoom()){
+                        DisplayGame.printWumpusKill();
+                        wumpusAlive = false;
+                    }
+                    else {
+                        DisplayGame.printWumpusMiss();
+                        // move the wumpus to a random other room
+                        placeWumpus();
+                    }
+                    return;
+                }
+            }
+        }
     }
 }

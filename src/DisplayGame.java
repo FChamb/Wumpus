@@ -19,7 +19,7 @@ public class DisplayGame {
         setPlaceSeen(4, 5);
         setPlaceSeen(5, 3);
         printBoard();*/
-        printNeighbours(new int[]{2, 3, 4, 5});
+        //printNeighbours(new int[]{2, 3, 4, 5});
         //getMove(new int[]{2, 3, 4, 5});
     }
 
@@ -68,18 +68,18 @@ public class DisplayGame {
         // "Which room?" <- if shoot is pressed (not the original text but the original makes no sense)
     
     // Method to ask if the player wants to move or shoot
-    public static void getMove(int[] neighbours){
+    public static void getMove(ArrayList<Integer> neighbours){
         System.out.println("Shoot or Move (S-M)?");
         String decision = scanner.nextLine();
         if(decision.equalsIgnoreCase("S")){
             // call the method for shooting
-            System.out.println("You have decided to shoot");
-            getAdjacentCell(neighbours, false); // only gets the next room, need to do something  with it
+            int roomNumber = getAdjacentCell(neighbours, false); // only gets the next room, need to do something  with it
+            TestChecking.shootRoom(roomNumber);
         }
         else if(decision.equalsIgnoreCase("M")){
             // call the method for moving
-            System.out.println("You have decided to move");
-            getAdjacentCell(neighbours, true); // need to do something with this, currently it just gets the move and nothing else
+            int roomNumber = getAdjacentCell(neighbours, true); // need to do something with this, currently it just gets the move and nothing else
+            TestChecking.moveRoom(roomNumber);
         }
         else{
             // call the method again if the input is invalid
@@ -88,7 +88,7 @@ public class DisplayGame {
     }
 
     // Method to ask where the player wants to move to <- should do this as compas directions instead
-    public static int getAdjacentCell(int[] neighbours, Boolean move){
+    public static int getAdjacentCell(ArrayList<Integer> neighbours, Boolean move){
         // Passed true if the player has chosen to move
         if(move){
             System.out.println("Where to?");
@@ -111,9 +111,8 @@ public class DisplayGame {
 
         // Check that the input is a valid room number
         Boolean found = false;
-        for(int i = 0; i < neighbours.length; i++){
-            if(roomNumber == neighbours[i]){
-                System.out.println(roomNumber + " is a valid room number");
+        for(int i = 0; i < neighbours.size(); i++){
+            if(roomNumber == neighbours.get(i)){
                 found = true;
                 break;
             }
@@ -145,12 +144,36 @@ public class DisplayGame {
         System.out.println("You are in room " + roomNumber);
     }
     // this one could use a little work and formatting
-    public static void printNeighbours(int[] neighbours){
+    public static void printNeighbours(ArrayList<Integer> neighbours){
         System.out.print("Tunnels lead to rooms "); 
-        for(int i = 0; i < neighbours.length - 1; i++){
-            System.out.print(neighbours[i] + ". ");
+        for(int i = 0; i < neighbours.size(); i++){
+            System.out.print(neighbours.get(i) + ". ");
         }
         // start a new line after printing out all the adjacent rooms
         System.out.println();
+    }
+
+    // Messages to print when the player losses the game
+    public static void printPitLoss(){
+        System.out.println("You have fallen in a bottomless pit and cannot escape");
+    }
+    public static void printWumpusLoss(){
+        System.out.println("The wumpus has found you");
+    }
+    public static void printWumpusKill(){
+        System.out.println("You here hear a terrible cry. You're arrow must have hit the wumpus");
+    }
+    public static void printVictory(){
+        System.out.println("You have found the treasure and escaped the cave");
+        System.out.println("Congratulations on winning the game");
+    }
+    public static void printBat(){
+        System.out.println("A superbat has picked you up");
+    }
+    public static void printTreasureFound(){
+        System.out.println("You have found the treasure");
+    }
+    public static void printWumpusMiss(){
+        System.out.println("You here the sound of an arrow hitting stone");
     }
 }

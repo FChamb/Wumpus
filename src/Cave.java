@@ -23,6 +23,14 @@ public class Cave {
     public Room[][] getLayout(){
         return cave;
     }
+    // getter for the player
+    public Player getPlayer(){
+        return player;
+    }
+    // getter for the wumpus
+    public Wumpus getWumpus(){
+        return wumpus;
+    }
 
     public void generateCave() {
         for (int i = 0; i < this.size; i++) {
