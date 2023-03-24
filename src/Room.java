@@ -1,21 +1,30 @@
 public class Room {
-    private int attribute;
+    /**
+     * A room can be one of four different types.
+     * "." basic room with no special properties
+     * "o" pit room - immediate death to player
+     * "w" super bat room - carries the player to a random location
+     * "G" treasure room - pt 1 of winning
+     * "X" exit - pt 2 of winning
+     */
+    private String Type;
     private boolean playerInRoom = false;
+    private boolean wumpusInRoom = false;
 
     public Room() {
-        this.attribute = 0;
+        this.Type = ".";
     }
 
-    public Room(int attribute) {
-        this.attribute = attribute;
+    public Room(String Type) {
+        this.Type = Type;
     }
 
-    public int getAttribute() {
-        return this.attribute;
+    public String getType() {
+        return this.Type;
     }
 
-    public void setAttribute(int attribute) {
-        this.attribute = attribute;
+    public void setType(String Type) {
+        this.Type = Type;
     }
 
     public boolean getPlayerInRoom() {
@@ -26,7 +35,11 @@ public class Room {
         this.playerInRoom = playerInRoom;
     }
 
+    public boolean getWumpusInRoom() { return this.wumpusInRoom; }
+
+    public void setWumpusInRoom(boolean wumpusInRoom) { this.wumpusInRoom = wumpusInRoom; }
+
     public String toString() {
-        return " " + this.attribute + " ";
+        return " " + this.Type + " ";
     }
 }

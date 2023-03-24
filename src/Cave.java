@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Cave {
     int size;
     int numOfPits;
@@ -20,9 +22,78 @@ public class Cave {
                 this.cave[i][j] = new Room();
             }
         }
-        generateObstacles();
+        ArrayList<int[]> path = createPath();
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
+                for (int[] coord : path) {
+                    if (coord[0] == i && coord[1] == j) {
+                        this.cave[i][j] = new Room("+");
+                    }
+                }
+            }
+        }
+        //generateObstacles();
     }
 
+    public ArrayList<int[]> createPath() {
+        int[] start = getRandom();
+        int length = this.size * 2;
+        ArrayList<int[]> path = new ArrayList<>();
+        int lastRoom = -1;
+        for (int i = 0; i < length; i++) {
+            int nextRoom = (int) (Math.random() * 4);
+            while (lastRoom != -1 && nextRoom == lastRoom) {
+                nextRoom = (int) (Math.random() * 4);
+            }
+            int x = start[0];
+            int y = start[1];
+            switch (nextRoom) {
+                case 0:
+                    lastRoom = 1;
+                    if (x == 0) {
+                        x = this.size;
+                    } else {
+                        x--;
+                    }
+                    path.add(new int[]{x, y});
+                    System.out.println(x + " " + y);
+                    break;
+                case 1:
+                    lastRoom = 0;
+                    if (x == this.size) {
+                        x = 0;
+                    } else {
+                        x++;
+                    }
+                    path.add(new int[]{x, y});
+                    System.out.println(x + " " + y);
+                    break;
+                case 2:
+                    lastRoom = 3;
+                    if (y == 0) {
+                        y = this.size;
+                    } else {
+                        y--;
+                    }
+                    path.add(new int[]{x, y});
+                    System.out.println(x + " " + y);
+                    break;
+                case 3:
+                    lastRoom = 2;
+                    if (y == this.size) {
+                        y = 0;
+                    } else {
+                        y++;
+                    }
+                    path.add(new int[]{x, y});
+                    System.out.println(x + " " + y);
+                    break;
+            }
+        }
+        return path;
+    }
+
+    /**
     public void generateObstacles() {
         int numOfObs = this.numOfPits + this.numOfSupBats + 3;
         int numPits = 0;
@@ -73,15 +144,15 @@ public class Cave {
             generateObstacles();
         }
     }
+     */
 
-    public boolean validPath() {
-        int x = this.player.getCoords()[0];
-        int y = this.player.getCoords()[1];
-        boolean valid = false;
-        while (!valid) {
-
+    public int[] getRandom() {
+        int x = (int) (Math.random() * this.size);
+        int y = (int) (Math.random() * this.size);
+        if (!this.cave[x][y].getType().equals(".")) {
+            getRandom();
         }
-        return false;
+        return new int[]{x, y};
     }
 
     public void clear() {
