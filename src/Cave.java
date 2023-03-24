@@ -19,6 +19,11 @@ public class Cave {
         generateCave();
     }
 
+    // getter for the layout
+    public Room[][] getLayout(){
+        return cave;
+    }
+
     public void generateCave() {
         for (int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
