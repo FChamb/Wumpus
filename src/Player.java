@@ -2,14 +2,16 @@ public class Player {
     private char icon = 'P';
     private int numOfArrows = 5;
     private int[] coords;
+    private boolean foundTreasure = false;
 
     public Player(String name) {
         this.icon = name.charAt(0);
     }
 
-    public Player(String name, int numOfArrows) {
+    public Player(String name, int numOfArrows, boolean foundTreasure) {
         this(name);
         this.numOfArrows = numOfArrows;
+        this.foundTreasure = foundTreasure;
     }
 
     public void addArrow() {
@@ -35,6 +37,6 @@ public class Player {
     }
 
     public String toString() {
-        return " " + String.valueOf(this.icon) + " ";
+        return " " + this.icon + " ";
     }
 }
