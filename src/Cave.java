@@ -196,7 +196,7 @@ public class Cave {
     }
 
     public String toString() {
-        String output = "Hunt the Wumpus \n";
+        String output = "";
         for (Room[] row : this.cave) {
             for (Room col : row) {
                 if (col.getPlayerInRoom()) {
