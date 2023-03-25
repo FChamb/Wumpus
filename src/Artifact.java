@@ -14,4 +14,8 @@ public class Artifact {
     public String getAbility() {
         return this.ability;
     }
+
+    public String toString() {
+        return this.name.substring(0, 1);
+    }
 }

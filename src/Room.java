@@ -50,6 +50,10 @@ public class Room {
     }
 
     public String toString() {
-        return " " + this.Type + " ";
+        if (artifact == null) {
+            return " " + this.Type + " ";
+        } else {
+            return " " + this.artifact + " ";
+        }
     }
 }
