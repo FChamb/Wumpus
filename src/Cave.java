@@ -136,8 +136,12 @@ public class Cave {
             int[] location = getRandom();
             checkRandom(location);
             x = location[0]; y = location[1];
-            //if (this.numOfArtifacts)
-            int choice = (int) (Math.random() * 3);
+            int choice;
+            if (this.numOfArtifacts > 0) {
+                choice = (int) (Math.random() * 4);
+            } else {
+                choice = (int) (Math.random() * 3);
+            }
             switch (choice) {
                 case 0:
                     if (numPits < this.numOfPits) {
@@ -162,7 +166,7 @@ public class Cave {
                         break;
                     }
                 case 3:
-                    if (numOfArtifacts < this.numOfArtifacts) {
+                    if (numOfItems < this.numOfArtifacts) {
                         this.cave[x][y].setArtifact(new Artifact("Shield", "one hit protection"));
                         numOfItems++;
                         total--;
@@ -210,7 +214,7 @@ public class Cave {
 
     public static void main(String[] args) {
         Player test = new Player("Finnegan");
-        Cave cave = new Cave(10, 8, 2, test);
+        Cave cave = new Cave(10, 8, 2, 1, test);
         System.out.println(cave);
     }
 }
