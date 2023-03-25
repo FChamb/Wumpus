@@ -27,12 +27,27 @@ public class DisplayGame {
 
     public DisplayGame(TestChecking test) {
         this.test = test;
-        placeholderBoard(this.test.getCave().size, this.test.getCave().size);
+        board = test.getCave();
+        setUpBoard(board);
+        //placeholderBoard(this.test.getCave().size, this.test.getCave().size);
     }
 
     // Method to set up the display board based on the board size
-    public void setUpBoard(){
-        // going to need a getter of some sort for the Cave class so this will have to wait
+    public void setUpBoard(Cave cave){
+        int rows = cave.getLayout().length;
+        int columns = cave.getLayout()[0].length;
+        for(int i = 0; i < rows; i++){
+            displayBoard.add(new ArrayList<>());
+            for(int j = 0; j < columns; j++){
+                displayBoard.get(i).add(false);
+            }
+        }
+    }
+
+    // updates the display board to show where the player has been
+    public void updateDisplayBoard(Player player){
+        int[] coords = player.getCoords();
+        displayBoard.get(coords[0]).set(coords[1], true);
     }
 
     // Place holder method to generate an all false board of a set size
@@ -46,15 +61,20 @@ public class DisplayGame {
     }
 
     // Method to display the basic board
-    public void printBoard(){
+    public void printBoard(Player player){
+        int[] playerCoords = player.getCoords();
         for(int i = 0; i < displayBoard.size(); i++){
             for(int j = 0; j < displayBoard.get(i).size(); j++){
+                // if the player is in that position print "O"
+                if(i == playerCoords[0] && j == playerCoords[1]){
+                    System.out.print("O ");
+                }
                 // if the cave is true, the player has been there
-                if(displayBoard.get(i).get(j)){
+                else if(displayBoard.get(i).get(j)){
                     System.out.print("X "); // X
                 }
                 // if the cave is false, the player has not been there
-                if(!displayBoard.get(i).get(j)){
+                else if(!displayBoard.get(i).get(j)){
                     System.out.print(". "); // .
                 }
             }
@@ -79,9 +99,13 @@ public class DisplayGame {
         System.out.println("Shoot or Move (S-M)?");
         String decision = scanner.nextLine();
         if(decision.equalsIgnoreCase("S")){
+            // print the number of arrows the player has
+            printArrows(board.getPlayer());
             // call the method for shooting
-            int roomNumber = getAdjacentCell(neighbours, false); // only gets the next room, need to do something  with it
-            test.shootRoom(roomNumber);
+            if(board.getPlayer().getNumOfArrows() > 0){
+                int roomNumber = getAdjacentCell(neighbours, false); // only gets the next room, need to do something  with it
+                test.shootRoom(roomNumber);
+            }
         }
         else if(decision.equalsIgnoreCase("M")){
             // call the method for moving
@@ -182,5 +206,11 @@ public class DisplayGame {
     }
     public void printWumpusMiss(){
         System.out.println("You here the sound of an arrow hitting stone");
+    }
+    public void printNoArrows(){
+        System.out.println("You have run out of arrows");
+    }
+    public void printArrows(Player player){
+        System.out.println("You have " + player.getNumOfArrows() + " arrows");
     }
 }

@@ -5,7 +5,7 @@ import java.util.Random;
 public class TestChecking {
 
     // attributes
-    private Cave cave = new Cave(5, 0, 0, new Player("player")); // cave object that the game works around
+    private Cave cave = new Cave(20, 0, 0, new Player("player")); // cave object that the game works around
     private DisplayGame display;
     private ArrayList<ArrayList<Integer>> roomNumbers = new ArrayList<>();
     // booleans the game will need to run:
@@ -38,8 +38,8 @@ public class TestChecking {
 
     // Method to play through the motions of the game
     public void playGame(){
-        this.display = new DisplayGame(this);
-        display.printBoard();
+        this.display = new DisplayGame(this); // board is set up in the constructor
+        //display.printBoard();
         while(!won && !lost){
             // get the players current position
             int[] coords = cave.getPlayer().getCoords();
@@ -51,12 +51,16 @@ public class TestChecking {
                 return;
             }
 
+            // print the cave (including the players position)
+            display.updateDisplayBoard(cave.getPlayer());
+            display.printBoard(cave.getPlayer());
+
             // print out the room number the player is in
             int roomNumber = roomNumbers.get(coords[0]).get(coords[1]);
             this.display.printRoom(roomNumber);
 
             // print the cave details for testing purposes
-            printCaveDetails();
+            //printCaveDetails();
 
             // check content of neighbouring cells
             ArrayList<Integer> neighbours = checkNeighbours(coords[0], coords[1]);
@@ -216,6 +220,10 @@ public class TestChecking {
     public void shootRoom(int roomNumber){
         // Shooting does nothing if the wumpus is dead
         if(!wumpusAlive){
+            return;
+        }
+        // Shooting does nothing if the player is out of arrows
+        if(!cave.getPlayer().useArrow()){
             return;
         }
         for(int i = 0; i < roomNumbers.size(); i++){
