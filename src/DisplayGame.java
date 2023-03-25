@@ -3,13 +3,15 @@ import java.util.*;
 public class DisplayGame {
     
     // attribute containing an arraylist of booleans representing where the player has been
-    private static ArrayList<ArrayList<Boolean>> displayBoard = new ArrayList<>();
+    private ArrayList<ArrayList<Boolean>> displayBoard = new ArrayList<>();
 
     // associated cave being displayed:
-    private static Cave board;
+    private Cave board;
 
     // scanner to ask for moves
-    private static Scanner scanner = new Scanner(System.in);
+    private Scanner scanner = new Scanner(System.in);
+
+    private TestChecking test;
 
     public static void main(String[] args){
         /*placeholderBoard(10, 10);
@@ -23,13 +25,17 @@ public class DisplayGame {
         //getMove(new int[]{2, 3, 4, 5});
     }
 
+    public DisplayGame(TestChecking test) {
+        this.test = test;
+    }
+
     // Method to set up the display board based on the board size
-    public static void setUpBoard(){
+    public void setUpBoard(){
         // going to need a getter of some sort for the Cave class so this will have to wait
     }
 
     // Place holder method to generate an all false board of a set size
-    public static void placeholderBoard(int rows, int columns){
+    public void placeholderBoard(int rows, int columns){
         for(int i = 0; i < rows; i++){
             displayBoard.add(new ArrayList<>());
             for(int j = 0; j < columns; j++){
@@ -39,7 +45,7 @@ public class DisplayGame {
     }
 
     // Method to display the basic board
-    public static void printBoard(){
+    public void printBoard(){
         for(int i = 0; i < displayBoard.size(); i++){
             for(int j = 0; j < displayBoard.get(i).size(); j++){
                 // if the cave is true, the player has been there
@@ -56,7 +62,7 @@ public class DisplayGame {
     }
 
     // Method to set caves in the board to true (when the player moves there)
-    public static void setPlaceSeen(int row, int column){
+    public void setPlaceSeen(int row, int column){
         displayBoard.get(row).set(column, true);
     }
     
@@ -68,18 +74,18 @@ public class DisplayGame {
         // "Which room?" <- if shoot is pressed (not the original text but the original makes no sense)
     
     // Method to ask if the player wants to move or shoot
-    public static void getMove(ArrayList<Integer> neighbours){
+    public void getMove(ArrayList<Integer> neighbours){
         System.out.println("Shoot or Move (S-M)?");
         String decision = scanner.nextLine();
         if(decision.equalsIgnoreCase("S")){
             // call the method for shooting
             int roomNumber = getAdjacentCell(neighbours, false); // only gets the next room, need to do something  with it
-            TestChecking.shootRoom(roomNumber);
+            test.shootRoom(roomNumber);
         }
         else if(decision.equalsIgnoreCase("M")){
             // call the method for moving
             int roomNumber = getAdjacentCell(neighbours, true); // need to do something with this, currently it just gets the move and nothing else
-            TestChecking.moveRoom(roomNumber);
+            test.moveRoom(roomNumber);
         }
         else{
             // call the method again if the input is invalid
@@ -88,7 +94,7 @@ public class DisplayGame {
     }
 
     // Method to ask where the player wants to move to <- should do this as compas directions instead
-    public static int getAdjacentCell(ArrayList<Integer> neighbours, Boolean move){
+    public int getAdjacentCell(ArrayList<Integer> neighbours, Boolean move){
         // Passed true if the player has chosen to move
         if(move){
             System.out.println("Where to?");
@@ -131,20 +137,20 @@ public class DisplayGame {
         // current room number
         // numbers of the rooms the player can move to
 
-    public static void printWumpus(){
+    public void printWumpus(){
         System.out.println("You smell the wumpus");
     }
-    public static void printPit(){
+    public void printPit(){
         System.out.println("You feel a breeze");
     }
-    public static void printTreasure(){
+    public void printTreasure(){
         System.out.println("You see a shiny glitteringness");
     }
-    public static void printRoom(int roomNumber){
+    public void printRoom(int roomNumber){
         System.out.println("You are in room " + roomNumber);
     }
     // this one could use a little work and formatting
-    public static void printNeighbours(ArrayList<Integer> neighbours){
+    public void printNeighbours(ArrayList<Integer> neighbours){
         System.out.print("Tunnels lead to rooms "); 
         for(int i = 0; i < neighbours.size(); i++){
             System.out.print(neighbours.get(i) + ". ");
@@ -154,26 +160,26 @@ public class DisplayGame {
     }
 
     // Messages to print when the player losses the game
-    public static void printPitLoss(){
+    public void printPitLoss(){
         System.out.println("You have fallen in a bottomless pit and cannot escape");
     }
-    public static void printWumpusLoss(){
+    public void printWumpusLoss(){
         System.out.println("The wumpus has found you");
     }
-    public static void printWumpusKill(){
+    public void printWumpusKill(){
         System.out.println("You here hear a terrible cry. You're arrow must have hit the wumpus");
     }
-    public static void printVictory(){
+    public void printVictory(){
         System.out.println("You have found the treasure and escaped the cave");
         System.out.println("Congratulations on winning the game");
     }
-    public static void printBat(){
+    public void printBat(){
         System.out.println("A superbat has picked you up");
     }
-    public static void printTreasureFound(){
+    public void printTreasureFound(){
         System.out.println("You have found the treasure");
     }
-    public static void printWumpusMiss(){
+    public void printWumpusMiss(){
         System.out.println("You here the sound of an arrow hitting stone");
     }
 }

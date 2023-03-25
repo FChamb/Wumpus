@@ -109,13 +109,13 @@ public class Cave {
         int x = this.path.get(0)[0];
         int y = this.path.get(0)[1];
         this.cave[x][y].setPlayerInRoom(true);
+        this.player.setCoords(x, y);
         x = this.path.get(this.path.size() / 2)[0];
         y = this.path.get(this.path.size() / 2)[1];
         this.cave[x][y] = new Room("G");
         x = this.path.get(this.path.size() - 1)[0];
         y = this.path.get(this.path.size() - 1)[1];
         this.cave[x][y] = new Room( "X");
-        this.player.setCoords(x, y);
         while (total > 0) {
             int[] location = getRandom();
             checkRandom(location);
