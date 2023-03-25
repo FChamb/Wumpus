@@ -5,7 +5,7 @@ import java.util.Random;
 public class TestChecking {
 
     // attributes
-    private Cave cave = new Cave(20, 0, 0, new Player("player")); // cave object that the game works around
+    private Cave cave = new Cave(5, 0, 0, new Player("player")); // cave object that the game works around
     private DisplayGame display;
     private ArrayList<ArrayList<Integer>> roomNumbers = new ArrayList<>();
     // booleans the game will need to run:
@@ -28,14 +28,22 @@ public class TestChecking {
         test.playGame();
     }
 
+    public DisplayGame getDisplay() {
+        return this.getDisplay();
+    }
+
+    public Cave getCave() {
+        return this.cave;
+    }
+
     // Method to play through the motions of the game
     public void playGame(){
         this.display = new DisplayGame(this);
-        placePlayer();
+        display.printBoard();
         while(!won && !lost){
             // get the players current position
             int[] coords = cave.getPlayer().getCoords();
-            
+
             // check current cell is safe
             checkCell(coords[0], coords[1]);
             // Stop playing if checking the players position determined a loss (can honestly just move this outside the loop)
@@ -78,8 +86,8 @@ public class TestChecking {
     public void printCaveDetails(){
         for(int i = 0; i < cave.getLayout().length; i++){
             for(int j = 0; j < cave.getLayout()[i].length; j++){
-                System.out.print(cave.getLayout()[i][j].toString().substring(1));
-                System.out.print(roomNumbers.get(i).get(j));
+                //System.out.print(cave.getLayout()[i][j].toString().substring(1));
+                System.out.print(roomNumbers.get(i).get(j) + "\t");
             }
             System.out.println();
         }

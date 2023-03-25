@@ -27,6 +27,7 @@ public class DisplayGame {
 
     public DisplayGame(TestChecking test) {
         this.test = test;
+        placeholderBoard(this.test.getCave().size, this.test.getCave().size);
     }
 
     // Method to set up the display board based on the board size
