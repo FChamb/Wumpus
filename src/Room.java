@@ -7,9 +7,10 @@ public class Room {
      * "G" treasure room - pt 1 of winning
      * "X" exit - pt 2 of winning
      */
-    private String Type;
+    private final String Type;
     private boolean playerInRoom = false;
     private boolean wumpusInRoom = false;
+    private Artifact artifact = null;
 
     public Room() {
         this.Type = ".";
@@ -19,12 +20,13 @@ public class Room {
         this.Type = Type;
     }
 
-    public String getType() {
-        return this.Type;
+    public Room(String Type, Artifact artifact) {
+        this(Type);
+        this.artifact = artifact;
     }
 
-    public void setType(String Type) {
-        this.Type = Type;
+    public String getType() {
+        return this.Type;
     }
 
     public boolean getPlayerInRoom() {
@@ -38,6 +40,14 @@ public class Room {
     public boolean getWumpusInRoom() { return this.wumpusInRoom; }
 
     public void setWumpusInRoom(boolean wumpusInRoom) { this.wumpusInRoom = wumpusInRoom; }
+
+    public Artifact getArtifact() {
+        return this.artifact;
+    }
+
+    public void setArtifact(Artifact artifact) {
+        this.artifact = artifact;
+    }
 
     public String toString() {
         return " " + this.Type + " ";

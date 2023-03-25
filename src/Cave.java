@@ -4,6 +4,7 @@ public class Cave {
     int size;
     int numOfPits;
     int numOfSupBats;
+    int numOfArtifacts = 0;
     private final Room[][] cave;
     private final Player player;
     private final Wumpus wumpus;
@@ -13,6 +14,17 @@ public class Cave {
         this.size = size;
         this.numOfPits = numOfPits;
         this.numOfSupBats = numOfSupBats;
+        this.cave = new Room[this.size][this.size];
+        this.player = player;
+        this.wumpus = new Wumpus();
+        generateCave();
+    }
+
+    public Cave(int size, int numOfPits, int numOfSupBats, int numOfArtifacts, Player player) {
+        this.size = size;
+        this.numOfPits = numOfPits;
+        this.numOfSupBats = numOfSupBats;
+        this.numOfArtifacts = numOfArtifacts;
         this.cave = new Room[this.size][this.size];
         this.player = player;
         this.wumpus = new Wumpus();
@@ -105,7 +117,11 @@ public class Cave {
         int numPits = 0;
         int numBats = 0;
         boolean wumpus = true;
+        int numOfItems = 0;
         int total = this.numOfPits + this.numOfSupBats + 1;
+        if (this.numOfArtifacts > 0) {
+            total += this.numOfArtifacts;
+        }
         int x = this.path.get(0)[0];
         int y = this.path.get(0)[1];
         this.cave[x][y].setPlayerInRoom(true);
@@ -120,6 +136,7 @@ public class Cave {
             int[] location = getRandom();
             checkRandom(location);
             x = location[0]; y = location[1];
+            //if (this.numOfArtifacts)
             int choice = (int) (Math.random() * 3);
             switch (choice) {
                 case 0:
@@ -141,6 +158,13 @@ public class Cave {
                         this.cave[x][y].setWumpusInRoom(true);
                         this.wumpus.setCoords(x, y);
                         wumpus = false;
+                        total--;
+                        break;
+                    }
+                case 3:
+                    if (numOfArtifacts < this.numOfArtifacts) {
+                        this.cave[x][y].setArtifact(new Artifact("Shield", "one hit protection"));
+                        numOfItems++;
                         total--;
                         break;
                     }
