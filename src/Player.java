@@ -5,7 +5,6 @@ public class Player {
     private int numOfArrows = 5;
     private int[] coords;
     private boolean foundTreasure = false;
-
     private ArrayList<Artifact> inventory;
 
     public Player(String name) {

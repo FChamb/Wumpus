@@ -5,7 +5,7 @@ import java.util.Random;
 public class TestChecking {
 
     // attributes
-    private Cave cave = new Cave(20, 0, 0, new Player("player")); // cave object that the game works around
+    private Cave cave = new Cave(20, 20, 0, 0, new Player("player")); // cave object that the game works around
     private DisplayGame display;
     private ArrayList<ArrayList<Integer>> roomNumbers = new ArrayList<>();
     // booleans the game will need to run:
@@ -78,9 +78,9 @@ public class TestChecking {
     // Method to create the roomNumbers based on the cave (needs to be integrated with the board)
     public void createNumbers(){
         int numbers = 1;
-        for(int i = 0; i < cave.size; i++){
+        for(int i = 0; i < cave.xSize; i++){
             roomNumbers.add(new ArrayList<>());
-            for(int j = 0; j < cave.size; j++){
+            for(int j = 0; j < cave.ySize; j++){
                 roomNumbers.get(i).add(numbers);
                 numbers++;
             }
@@ -175,9 +175,9 @@ public class TestChecking {
 
     public int validateRow(int row){
         if(row < 0){
-            row = cave.size-1;
+            row = cave.xSize-1;
         }
-        if(row >= cave.size){
+        if(row >= cave.xSize){
             row = 0;
         }
         return row;
@@ -186,9 +186,9 @@ public class TestChecking {
     // possibly change this later
     public int validateColumn(int column){
         if(column < 0){
-            column = cave.size-1;
+            column = cave.ySize-1;
         }
-        if(column >= cave.size){
+        if(column >= cave.ySize){
             column = 0;
         }
         return column;

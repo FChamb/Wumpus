@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 
 public class Cave {
-    int size;
+    int xSize;
+    int ySize;
     int numOfPits;
     int numOfSupBats;
     int numOfArtifacts = 0;
@@ -10,22 +11,24 @@ public class Cave {
     private final Wumpus wumpus;
     private ArrayList<int[]> path;
 
-    public Cave(int size, int numOfPits, int numOfSupBats, Player player) {
-        this.size = size;
+    public Cave(int xSize, int ySize, int numOfPits, int numOfSupBats, Player player) {
+        this.xSize = xSize;
+        this.ySize = ySize;
         this.numOfPits = numOfPits;
         this.numOfSupBats = numOfSupBats;
-        this.cave = new Room[this.size][this.size];
+        this.cave = new Room[this.xSize][this.ySize];
         this.player = player;
         this.wumpus = new Wumpus();
         generateCave();
     }
 
-    public Cave(int size, int numOfPits, int numOfSupBats, int numOfArtifacts, Player player) {
-        this.size = size;
+    public Cave(int xSize, int ySize, int numOfPits, int numOfSupBats, int numOfArtifacts, Player player) {
+        this.xSize = xSize;
+        this.ySize = ySize;
         this.numOfPits = numOfPits;
         this.numOfSupBats = numOfSupBats;
         this.numOfArtifacts = numOfArtifacts;
-        this.cave = new Room[this.size][this.size];
+        this.cave = new Room[this.xSize][this.ySize];
         this.player = player;
         this.wumpus = new Wumpus();
         generateCave();
@@ -45,8 +48,8 @@ public class Cave {
     }
 
     public void generateCave() {
-        for (int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
+        for (int i = 0; i < this.xSize; i++) {
+            for (int j = 0; j < this.ySize; j++) {
                 this.cave[i][j] = new Room();
             }
         }
@@ -56,7 +59,7 @@ public class Cave {
 
     public ArrayList<int[]> createPath() {
         int[] start = getRandom();
-        int length = this.size * 2;
+        int length = this.xSize + this.ySize;
         ArrayList<int[]> path = new ArrayList<>();
         path.add(start);
         int lastRoom = -1;
@@ -71,7 +74,7 @@ public class Cave {
                 case 0:
                     lastRoom = 1;
                     if (x == 0) {
-                        x = this.size - 1;
+                        x = this.xSize - 1;
                     } else {
                         x--;
                     }
@@ -80,7 +83,7 @@ public class Cave {
                     break;
                 case 1:
                     lastRoom = 0;
-                    if (x == this.size - 1) {
+                    if (x == this.xSize - 1) {
                         x = 0;
                     } else {
                         x++;
@@ -91,7 +94,7 @@ public class Cave {
                 case 2:
                     lastRoom = 3;
                     if (y == 0) {
-                        y = this.size - 1;
+                        y = this.ySize - 1;
                     } else {
                         y--;
                     }
@@ -100,7 +103,7 @@ public class Cave {
                     break;
                 case 3:
                     lastRoom = 2;
-                    if (y == this.size - 1) {
+                    if (y == this.ySize - 1) {
                         y = 0;
                     } else {
                         y++;
@@ -177,8 +180,8 @@ public class Cave {
     }
 
     public int[] getRandom() {
-        int x = (int) (Math.random() * this.size);
-        int y = (int) (Math.random() * this.size);
+        int x = (int) (Math.random() * this.xSize);
+        int y = (int) (Math.random() * this.ySize);
         if (this.cave[x][y].getType().equals(".")) {
             return new int[]{x, y};
         } else {
@@ -196,7 +199,7 @@ public class Cave {
     }
 
     public String toString() {
-        String output = "";
+        String output = "\n";
         for (Room[] row : this.cave) {
             for (Room col : row) {
                 if (col.getPlayerInRoom()) {
@@ -214,7 +217,7 @@ public class Cave {
 
     public static void main(String[] args) {
         Player test = new Player("Finnegan");
-        Cave cave = new Cave(10, 8, 2, 1, test);
+        Cave cave = new Cave(10, 5, 8, 2, 1, test);
         System.out.println(cave);
     }
 }
