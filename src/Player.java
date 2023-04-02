@@ -21,6 +21,10 @@ public class Player {
         this.numOfArrows++;
     }
 
+    public void setArrows(int arrows){
+        this.numOfArrows = arrows;
+    }
+
     public boolean useArrow() {
         if (this.numOfArrows > 0) {
             this.numOfArrows--;

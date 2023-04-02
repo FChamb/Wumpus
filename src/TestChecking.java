@@ -204,6 +204,26 @@ public class TestChecking {
         cave.getWumpus().setCoords(coords[0], coords[1]);
     }
 
+    // Method for getting a room position from N/S/E/W
+    public int getRoomNumber(String nsew){
+        // Get the players position
+        int[] coords = cave.getPlayer().getCoords();
+        if(nsew.equals("n")){
+            coords[0] = validateRow(coords[0]-1); // N moves the played one upwards
+        }
+        if(nsew.equals("s")){
+            coords[0] = validateRow(coords[0]+1); // S moves the player one downwards
+        }
+        if(nsew.equals("e")){
+            coords[1] = validateColumn(coords[1]+1); // E moves the player one to the right
+        }
+        if(nsew.equals("w")){
+            coords[1] = validateColumn(coords[1]-1); // W moves the player one to the left
+        }
+        // Return the room number associated with the new room
+        return roomNumbers.get(coords[0]).get(coords[1]);
+    }
+
     // Method to move with a provided room number (there is definitely a better way to do this that i will think of another time)
     public void moveRoom(int roomNumber){
         for(int i = 0; i < roomNumbers.size(); i++){
