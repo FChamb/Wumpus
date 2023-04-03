@@ -1,3 +1,5 @@
+import java.awt.*;
+
 public class Room {
     /**
      * A room can be one of four different types.

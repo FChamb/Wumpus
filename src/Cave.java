@@ -5,46 +5,40 @@ public class Cave {
     int ySize;
     int numOfPits;
     int numOfSupBats;
-    int numOfArtifacts = 0;
+    int numOfArtifacts;
+    int numWalls;
     private final Room[][] cave;
     private final Player player;
     private final Wumpus wumpus;
     private ArrayList<int[]> path;
 
-    public Cave(int xSize, int ySize, int numOfPits, int numOfSupBats, Player player) {
+    public Cave(int xSize, int ySize, int numOfPits, int numOfSupBats, int numWalls, int numOfArtifacts, Player player) {
         this.xSize = xSize;
         this.ySize = ySize;
         this.numOfPits = numOfPits;
         this.numOfSupBats = numOfSupBats;
+        this.numWalls = numWalls;
         this.cave = new Room[this.xSize][this.ySize];
         this.player = player;
         this.wumpus = new Wumpus();
-        generateCave();
-    }
-
-    public Cave(int xSize, int ySize, int numOfPits, int numOfSupBats, int numOfArtifacts, Player player) {
-        this.xSize = xSize;
-        this.ySize = ySize;
-        this.numOfPits = numOfPits;
-        this.numOfSupBats = numOfSupBats;
         this.numOfArtifacts = numOfArtifacts;
-        this.cave = new Room[this.xSize][this.ySize];
-        this.player = player;
-        this.wumpus = new Wumpus();
+        if (numOfPits + numOfSupBats + numWalls + numOfArtifacts + xSize + ySize > xSize * ySize) {
+            throw new ArrayIndexOutOfBoundsException("Too many objects defined for the size of cave!");
+        }
         generateCave();
     }
 
     // getter for the layout
     public Room[][] getLayout(){
-        return cave;
+        return this.cave;
     }
     // getter for the player
     public Player getPlayer(){
-        return player;
+        return this.player;
     }
     // getter for the wumpus
     public Wumpus getWumpus(){
-        return wumpus;
+        return this.wumpus;
     }
 
     public void generateCave() {
@@ -54,6 +48,9 @@ public class Cave {
             }
         }
         this.path = createPath();
+        for (int[] fs : this.path) {
+            System.out.print(fs[0] + " " + fs[1] + "    ");
+        }
         generateObstacles();
     }
 
@@ -121,7 +118,8 @@ public class Cave {
         int numBats = 0;
         boolean wumpus = true;
         int numOfItems = 0;
-        int total = this.numOfPits + this.numOfSupBats + 1;
+        int numWalls = 0;
+        int total = this.numOfPits + this.numOfSupBats + 1 + this.numWalls;
         if (this.numOfArtifacts > 0) {
             total += this.numOfArtifacts;
         }
@@ -137,13 +135,12 @@ public class Cave {
         this.cave[x][y] = new Room( "X");
         while (total > 0) {
             int[] location = getRandom();
-            checkRandom(location);
             x = location[0]; y = location[1];
             int choice;
             if (this.numOfArtifacts > 0) {
-                choice = (int) (Math.random() * 4);
+                choice = (int) (Math.random() * 5);
             } else {
-                choice = (int) (Math.random() * 3);
+                choice = (int) (Math.random() * 4);
             }
             switch (choice) {
                 case 0:
@@ -175,6 +172,13 @@ public class Cave {
                         total--;
                         break;
                     }
+                case 4:
+                    if (numWalls < this.numWalls) {
+                        this.cave[x][y] = new Room("-");
+                        numWalls++;
+                        total--;
+                        break;
+                    }
             }
         }
     }
@@ -182,19 +186,13 @@ public class Cave {
     public int[] getRandom() {
         int x = (int) (Math.random() * this.xSize);
         int y = (int) (Math.random() * this.ySize);
+        if (this.path != null && this.path.contains(new int[]{x, y})) {
+            return getRandom();
+        }
         if (this.cave[x][y].getType().equals(".")) {
             return new int[]{x, y};
         } else {
             return getRandom();
-        }
-    }
-
-    public void checkRandom(int[] location) {
-        for (int[] coord : this.path) {
-            if (coord[0] == location[0] && coord[1] == location[1]) {
-                location = getRandom();
-                checkRandom(location);
-            }
         }
     }
 
@@ -217,7 +215,7 @@ public class Cave {
 
     public static void main(String[] args) {
         Player test = new Player("Finnegan");
-        Cave cave = new Cave(10, 5, 8, 2, 1, test);
+        Cave cave = new Cave(10, 5, 8, 2, 15, 1, test);
         System.out.println(cave);
     }
 }

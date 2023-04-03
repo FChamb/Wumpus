@@ -347,8 +347,10 @@ public class TextGame {
         int width = setDimensions(false);
         int bats = setLayout(height, width, false);
         int pits = setLayout(height, width, true);
+        int walls = setWalls(height, width);
+        int artifacts = setArtifacts(height, width);
         player.setArrows(setArrows()); // Set the number of arrows the player has
-        cave = new Cave(height, width, pits, bats, player);
+        cave = new Cave(height, width, pits, bats, walls, artifacts, player);
     }
 
     public int setDimensions(boolean height){
@@ -439,6 +441,48 @@ public class TextGame {
         // Check it is in the desired range [1, infinity]
         if(layout < 0 || layout > rows*columns){
             layout = setLayout(rows, columns, pits);
+            return layout;
+        }
+
+        return layout;
+    }
+
+    public int setWalls(int rows, int columns) {
+        System.out.println("Please enter the number of walls you would like");
+        String percent = scanner.nextLine();
+        int layout = 0;
+        // Check it is a number
+        try {
+            layout = Integer.parseInt(percent);
+            // If it is not an integer then ask for input again
+        } catch(NumberFormatException e){
+            layout = setWalls(rows, columns);
+            return layout;
+        }
+        // Check it is in the desired range [1, infinity]
+        if(layout < 0 || layout > rows*columns){
+            layout = setWalls(rows, columns);
+            return layout;
+        }
+
+        return layout;
+    }
+
+    public int setArtifacts(int rows, int columns) {
+        System.out.println("Please enter the number of artifacts you would like");
+        String number = scanner.nextLine();
+        int layout = 0;
+        // Check it is a number
+        try {
+            layout = Integer.parseInt(number);
+            // If it is not an integer then ask for input again
+        } catch(NumberFormatException e){
+            layout = setArtifacts(rows, columns);
+            return layout;
+        }
+        // Check it is in the desired range [1, infinity]
+        if(layout < 0 || layout > rows*columns){
+            layout = setArtifacts(rows, columns);
             return layout;
         }
 
