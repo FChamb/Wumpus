@@ -45,6 +45,14 @@ public class Player {
         return this.coords;
     }
 
+    public boolean hadFoundTreasure(){
+        return foundTreasure;
+    }
+
+    public void findTreasure(){
+        this.foundTreasure = true;
+    }
+
     public ArrayList<Artifact> getInventory() {
         return inventory;
     }
