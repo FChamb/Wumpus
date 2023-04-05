@@ -1,5 +1,3 @@
-import java.awt.*;
-
 public class Room {
     /**
      * A room can be one of four different types.
@@ -8,6 +6,7 @@ public class Room {
      * "w" super bat room - carries the player to a random location
      * "G" treasure room - pt 1 of winning
      * "X" exit - pt 2 of winning
+     * "#" wall
      */
     private final String Type;
     private boolean playerInRoom = false;
