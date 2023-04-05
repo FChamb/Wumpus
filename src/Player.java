@@ -5,7 +5,7 @@ public class Player {
     private int numOfArrows = 5;
     private int[] coords;
     private boolean foundTreasure = false;
-    private ArrayList<Artifact> inventory;
+    private ArrayList<Artifact> inventory = new ArrayList<>();
 
     public Player(String name) {
         this.icon = name.charAt(0);
@@ -71,5 +71,28 @@ public class Player {
 
     public String toString() {
         return " " + this.icon + " ";
+    }
+
+    // Method to check if the player has a shield
+    public boolean hasShield(){
+        for(Artifact artefact : this.inventory){
+            if(artefact.getName().equals("D")){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Method to use a shield if the player has one (returns true if shield used and false if not)
+    public boolean useShield(){
+        for(Artifact artefact : this.inventory){
+            // If the player has a shield use it and return true
+            if(artefact.getName().equals("D")){
+                inventory.remove(artefact);
+                return true;
+            }
+        }
+
+        return false;
     }
 }

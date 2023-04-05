@@ -50,11 +50,15 @@ public class Wumpus {
     
     // Return whether the wumpus is alive after being hit
     public boolean hitWumpus(){
-        if(lives > 0){
+        if(lives > 1){
             lives--;
             return true;
         }
-        this.alive = false;
+        if(lives == 1){
+            lives--;
+            this.alive = false;
+            return true;
+        }
         return false;
     }
 

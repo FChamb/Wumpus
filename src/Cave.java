@@ -171,7 +171,7 @@ public class Cave {
                     }
                 case 4:
                     if (numWalls < this.numWalls) {
-                        this.cave[x][y] = new Room("❚");
+                        this.cave[x][y] = new Room("#"); 
                         numWalls++;
                         total--;
                         break;
