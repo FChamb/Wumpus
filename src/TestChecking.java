@@ -5,7 +5,7 @@ import java.util.Random;
 public class TestChecking {
 
     // attributes
-    private Cave cave = new Cave(20, 20, 0, 0, 0, 0, new Player("player")); // cave object that the game works around
+    private Cave cave = new Cave(20, 20, 0, 0, 0, 0, new Player("Test")); // cave object that the game works around
     private DisplayGame display;
     private ArrayList<ArrayList<Integer>> roomNumbers = new ArrayList<>();
     // booleans the game will need to run:

@@ -74,15 +74,15 @@ public class DisplayGame {
             for (int j = 0; j < displayBoard.get(i).size(); j++) {
                 // if the player is in that position print "O"
                 if (i == playerCoords[0] && j == playerCoords[1]) {
-                    System.out.print("O ");
+                    System.out.print(this.board.getPlayer());
                 }
                 // if the cave is true, the player has been there
                 else if (displayBoard.get(i).get(j)) {
-                    System.out.print("X "); // X
+                    System.out.print(" X "); // X
                 }
                 // if the cave is false, the player has not been there
                 else if (!displayBoard.get(i).get(j)) {
-                    System.out.print(". "); // .
+                    System.out.print(" . "); // .
                 }
             }
             System.out.println();
