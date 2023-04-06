@@ -1,3 +1,5 @@
+package game;
+
 import java.util.*;
 public class AI extends Player{
 

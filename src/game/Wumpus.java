@@ -1,3 +1,5 @@
+package game;
+
 public class Wumpus {
     private char icon = '!';
     private boolean alive = true;
