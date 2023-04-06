@@ -435,7 +435,7 @@ public class TextGame {
         int height = setDimensions(true);
         int width = setDimensions(false);
         int total = height * width - (height + width) - 1;
-        int walls = setWalls(total);
+        int walls = (int) ((setWalls(total) / 100) * total);
         total -= walls;
         int bats = setLayout(false, total);
         total -= bats;
@@ -542,6 +542,9 @@ public class TextGame {
     }
 
     public int setLayout(boolean pits, int total) {
+        if (total == 0) {
+            return 0;
+        }
         if (pits) {
             System.out.println("Please enter the number of bottomless pits in the cave");
         } else {
@@ -570,33 +573,34 @@ public class TextGame {
         return layout;
     }
 
-    public int setWalls(int total) {
+    public double setWalls(int total) {
         System.out.println("Please enter the percent of walls you would like");
         System.out.println("You have " + total + " free spaces available.");
         String percent = scanner.nextLine();
         double layout = 0;
-        int numWalls = 0;
         // Check it is a number
         try {
             layout = Double.parseDouble(percent);
-            numWalls = (int) ((layout / 100) * total);
             // If it is not an integer then ask for input again
         } catch (NumberFormatException e) {
             layout = setWalls(total);
-            numWalls = (int) ((layout / 100) * total);
-            return numWalls;
+            return layout;
         }
         // Check it is in the desired range [1, infinity]
-        if (layout < 0 || numWalls > total) {
+        if (layout < 0 || layout > 100) {
             layout = setWalls(total);
-            numWalls = (int) ((layout / 100) * total);
-            return numWalls;
+            return layout;
         }
-
-        return numWalls;
+        if (layout == 100) {
+            layout = 99;
+        }
+        return layout;
     }
 
     public int setArtifacts(int total) {
+        if (total == 0) {
+            return 0;
+        }
         System.out.println("Please enter the number of artifacts you would like");
         System.out.println("You have " + total + " free spaces available.");
         String number = scanner.nextLine();
