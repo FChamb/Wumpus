@@ -1,3 +1,5 @@
+package game;
+
 public class Artifact {
     private String name;
     private String ability;
