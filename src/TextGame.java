@@ -223,16 +223,16 @@ public class TextGame {
         StringBuilder builder = new StringBuilder();
 
         // Check if all the adjacent squares are not walls
-        if (!cave.getLayout()[validateRow(coords[0] - 1)][coords[1]].getType().equals("#")) {
+        if (!cave.getLayout()[validateRow(coords[0] - 1)][coords[1]].getType().equals(" ")) {
             builder.append("N-"); // N moves the played one upwards
         }
-        if (!cave.getLayout()[validateRow(coords[0] + 1)][coords[1]].getType().equals("#")) {
+        if (!cave.getLayout()[validateRow(coords[0] + 1)][coords[1]].getType().equals(" ")) {
             builder.append("S-"); // S moves the player one downwards
         }
-        if (!cave.getLayout()[coords[0]][validateColumn(coords[1] + 1)].getType().equals("#")) {
+        if (!cave.getLayout()[coords[0]][validateColumn(coords[1] + 1)].getType().equals(" ")) {
             builder.append("E-"); // E moves the player one to the right
         }
-        if (!cave.getLayout()[coords[0]][validateColumn(coords[1] - 1)].getType().equals("#")) {
+        if (!cave.getLayout()[coords[0]][validateColumn(coords[1] - 1)].getType().equals(" ")) {
             builder.append("W-"); // W moves the player one to the left
         }
 
@@ -429,15 +429,29 @@ public class TextGame {
 
     // Methods for getting info about setting up the game
     public void setUp(Player player) {
+        player.setName(setName());
         int height = setDimensions(true);
         int width = setDimensions(false);
-        int bats = setLayout(height, width, false);
-        int pits = setLayout(height, width, true);
-        int walls = setWalls(height, width);
-        int artifacts = setArtifacts(height, width);
+        int total = height * width - (height + width) - 1;
+        int walls = setWalls(total);
+        total -= walls;
+        int bats = setLayout(false, total);
+        total -= bats;
+        int pits = setLayout(true, total);
+        total -= pits;
+        int artifacts = setArtifacts(total);
         player.setArrows(setArrows()); // Set the number of arrows the player has
         cave = new Cave(height, width, pits, bats, walls, artifacts, player);
         cave.getWumpus().setLives(setWumpusLives()); // Set the number of lives the Wumpus has
+    }
+
+    public String setName() {
+        System.out.println("Please enter player name");
+        String name = scanner.nextLine();
+        if (name.length() < 1) {
+            return setName();
+        }
+        return name;
     }
 
     public int setDimensions(boolean height) {
@@ -525,12 +539,13 @@ public class TextGame {
         return lives;
     }
 
-    public int setLayout(int rows, int columns, boolean pits) {
+    public int setLayout(boolean pits, int total) {
         if (pits) {
             System.out.println("Please enter the number of bottomless pits in the cave");
         } else {
             System.out.println("Please enter the number of superbats in the cave");
         }
+        System.out.println("You have " + total + " free spaces available.");
         String number = scanner.nextLine();
 
         int layout = 0;
@@ -540,42 +555,48 @@ public class TextGame {
             layout = Integer.parseInt(number);
             // If it is not an integer then ask for input again
         } catch (NumberFormatException e) {
-            layout = setLayout(rows, columns, pits);
+            layout = setLayout(pits, total);
             return layout;
         }
 
         // Check it is in the desired range [1, infinity]
-        if (layout < 0 || layout > rows * columns) {
-            layout = setLayout(rows, columns, pits);
+        if (layout < 0 || layout > total) {
+            layout = setLayout(pits, total);
             return layout;
         }
 
         return layout;
     }
 
-    public int setWalls(int rows, int columns) {
-        System.out.println("Please enter the number of walls you would like");
+    public int setWalls(int total) {
+        System.out.println("Please enter the percent of walls you would like");
+        System.out.println("You have " + total + " free spaces available.");
         String percent = scanner.nextLine();
-        int layout = 0;
+        double layout = 0;
+        int numWalls = 0;
         // Check it is a number
         try {
-            layout = Integer.parseInt(percent);
+            layout = Double.parseDouble(percent);
+            numWalls = (int) ((layout / 100) * total);
             // If it is not an integer then ask for input again
         } catch (NumberFormatException e) {
-            layout = setWalls(rows, columns);
-            return layout;
+            layout = setWalls(total);
+            numWalls = (int) ((layout / 100) * total);
+            return numWalls;
         }
         // Check it is in the desired range [1, infinity]
-        if (layout < 0 || layout > rows * columns) {
-            layout = setWalls(rows, columns);
-            return layout;
+        if (layout < 0 || numWalls > total) {
+            layout = setWalls(total);
+            numWalls = (int) ((layout / 100) * total);
+            return numWalls;
         }
 
-        return layout;
+        return numWalls;
     }
 
-    public int setArtifacts(int rows, int columns) {
+    public int setArtifacts(int total) {
         System.out.println("Please enter the number of artifacts you would like");
+        System.out.println("You have " + total + " free spaces available.");
         String number = scanner.nextLine();
         int layout = 0;
         // Check it is a number
@@ -583,12 +604,12 @@ public class TextGame {
             layout = Integer.parseInt(number);
             // If it is not an integer then ask for input again
         } catch (NumberFormatException e) {
-            layout = setArtifacts(rows, columns);
+            layout = setArtifacts(total);
             return layout;
         }
         // Check it is in the desired range [1, infinity]
-        if (layout < 0 || layout > rows * columns) {
-            layout = setArtifacts(rows, columns);
+        if (layout < 0 || layout > total) {
+            layout = setArtifacts(total);
             return layout;
         }
 

@@ -61,6 +61,10 @@ public class Player {
         this.inventory.add(artifact);
     }
 
+    public void setName(String name) {
+        this.icon = name.charAt(0);
+    }
+
     public boolean containArtifact(Artifact artifact) {
         if (this.inventory.contains(artifact)) {
             return true;

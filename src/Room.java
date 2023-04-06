@@ -54,7 +54,7 @@ public class Room {
         if (artifact == null) {
             return " " + this.Type + " ";
         } else {
-            return " " + this.artifact + " ";
+            return this.artifact + "";
         }
     }
 }

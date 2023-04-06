@@ -116,10 +116,7 @@ public class Cave {
         boolean wumpus = true;
         int numOfItems = 0;
         int numWalls = 0;
-        int total = this.numOfPits + this.numOfSupBats + 1 + this.numWalls;
-        if (this.numOfArtifacts > 0) {
-            total += this.numOfArtifacts;
-        }
+        int total = this.numOfPits + this.numOfSupBats + this.numWalls + this.numOfArtifacts + 1;
         int x = Integer.parseInt(this.path.get(0).split("x")[0]);
         int y = Integer.parseInt(this.path.get(0).split("x")[1]);
         this.cave[x][y].setPlayerInRoom(true);
@@ -171,7 +168,7 @@ public class Cave {
                     }
                 case 4:
                     if (numWalls < this.numWalls) {
-                        this.cave[x][y] = new Room("#"); 
+                        this.cave[x][y] = new Room(" ");
                         numWalls++;
                         total--;
                         break;
@@ -185,7 +182,7 @@ public class Cave {
         int y = (int) (Math.random() * this.ySize);
         if (this.path != null && this.path.contains(x + "x" + y)) {
             return getRandom();
-        } else if (this.cave[x][y].getType().matches("-|o|w") || this.cave[x][y].getArtifact() != null || this.cave[x][y].getWumpusInRoom()) {
+        } else if (this.cave[x][y].getType().matches(" |o|w") || this.cave[x][y].getArtifact() != null || this.cave[x][y].getWumpusInRoom()) {
             return getRandom();
         } else {
             return new int[]{x, y};
@@ -211,7 +208,7 @@ public class Cave {
 
     public static void main(String[] args) {
         Player test = new Player("Finnegan");
-        Cave cave = new Cave(10, 5, 8, 2, 15, 3, test);
+        Cave cave = new Cave(10, 10, 12, 5, 30, 4, test);
         System.out.println(cave);
     }
 }
