@@ -13,6 +13,12 @@ public class TextGame {
     // scanner to ask for user input
     private Scanner scanner = new Scanner(System.in);
 
+    // information for the ai player
+    private AI aiPlayer;
+    private boolean ai;
+    private boolean[] surroundings = {false, false, false};
+    private boolean smell = true;
+
     // Counters for blindness and loss of smell
     private int blind = -1;
     private int blockedNose = -1;
@@ -59,6 +65,13 @@ public class TextGame {
             String nsew = getWalls();
             printNeighbours(nsew);
 
+            // give the ai player the required information before asking them to make a move
+            if(ai){
+                aiPlayer.setInfo(roomNumber, surroundings, nsew, smell);
+                smell = true; // set smell back to true after informing the ai so it only gets told the round it happens
+            }
+
+
             // get the players next move
             getMove();
             coords = cave.getPlayer().getCoords();
@@ -70,6 +83,15 @@ public class TextGame {
             // count the number of rounds played with presets
             blind--;
             blockedNose--;
+
+            // if the ai is playing make the whole game wait
+            if(ai){
+                try{
+                    Thread.sleep(1000);
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -150,6 +172,7 @@ public class TextGame {
         }
         if (name.equals("U")) { // weird drinking water <- loose sense of smell for 5 rounds
             blockedNose = 5;
+            smell = false;
         }
         if (name.equals(">")) { // arrow <- gain an arrow
             cave.getPlayer().addArrow(); // Give the player another arrow
@@ -180,6 +203,7 @@ public class TextGame {
                         // Only smell the wumpus when the nose is not blocked
                         if (blockedNose < 0) {
                             printWumpus();
+                            surroundings[0] = true;
                         }
                     }
 
@@ -187,11 +211,13 @@ public class TextGame {
                     String type = room.getType();
                     if (type.equals("o") && !pit) {
                         printPit();
+                        surroundings[1] = true;
                         pit = true; // Make sure it does not print the pit message again
                     }
                     // Only print that the treasure is nearby if the treasure has not been found
                     if (type.equals("G") && !cave.getPlayer().hadFoundTreasure()) {
                         printTreasure();
+                        surroundings[2] = true;
                     }
                 }
             }
@@ -344,7 +370,15 @@ public class TextGame {
 
     public void getMove() {
         System.out.println("Shoot or Move (S-M)?");
-        String decision = scanner.nextLine().toLowerCase();
+        String decision = "";
+        if(ai){
+            decision = aiPlayer.makeMove().toLowerCase();
+            // code to get input from the ai
+        }
+        else{
+            decision = scanner.nextLine().toLowerCase();
+        }
+        //String decision = scanner.nextLine().toLowerCase();
         if (decision.equals("s")) {
             // print the number of arrows the player has
             printArrows(cave.getPlayer());
@@ -361,24 +395,6 @@ public class TextGame {
         }
     }
 
-    // Method for taking N/S/E/W instead of room numbers
-    public String getDirection(boolean move) {
-        if (move) {
-            System.out.println("What direction do you want to move (N-E-S-W)?");
-        } else {
-            System.out.println("What direction do you want to shoot (N-E-S-W)?");
-        }
-
-        String direction = scanner.nextLine().toLowerCase();
-        // call the method again if it is not a valid direction
-        if (!direction.equals("n") && !direction.equals("s") && !direction.equals("e") && !direction.equals("w")) {
-            direction = getDirection(move);
-            return direction;
-        }
-
-        return direction;
-    }
-
     // Method for get direction that uses only the available squares
     public String getDirection(boolean move, String nsew) {
         if (move) {
@@ -386,8 +402,14 @@ public class TextGame {
         } else {
             System.out.println("What direction do you want to shoot (" + nsew + ")?");
         }
-
-        String direction = scanner.nextLine();
+        String direction = "";
+        if(ai){
+            direction = aiPlayer.chooseDirection();
+            // code to get input from the ai
+        }
+        else{
+            direction = scanner.nextLine();
+        }
         String[] directions = nsew.split("-");
 
         int counter = 0;
@@ -403,7 +425,7 @@ public class TextGame {
             return direction;
         }
 
-        return direction;
+        return direction.toLowerCase();
     }
 
     // Method for getting a room position from N/S/E/W
@@ -434,6 +456,7 @@ public class TextGame {
         player.setName(setName());
         int height = setDimensions(true);
         int width = setDimensions(false);
+        aiPlayer = new AI(height, width); // Tell the AI the size of the caves
         int total = height * width - (height + width) - 1;
         int walls = (int) ((setWalls(total) / 100) * total);
         total -= walls;
@@ -452,6 +475,10 @@ public class TextGame {
         String name = scanner.nextLine();
         if (name.length() < 1) {
             return setName();
+        }
+        // Detect if the player wants the ai to play
+        if(name.equalsIgnoreCase("ai")){
+            ai = true;
         }
         return name;
     }
@@ -636,11 +663,6 @@ public class TextGame {
 
     public void printRoom(int roomNumber) {
         System.out.println("You are in room " + roomNumber);
-    }
-
-    // Print message saying where tunnels go to (not accounting for walls)
-    public void printNeighbours() {
-        System.out.println("Tunnels lead to the north, south, east and west");
     }
 
     // Version of the print neighbours method that takes into account where the

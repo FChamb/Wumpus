@@ -1,7 +1,7 @@
 package game;
 
 import java.util.*;
-public class AI extends Player{
+public class AI{
 
     public static void main(String[] args){
         AI ai = new AI(20, 20);
@@ -18,10 +18,42 @@ public class AI extends Player{
     
     // Create a player object that is called 'AI'
     public AI(int caveRows, int caveColumns){
-        super("AI");
         previousRooms = new ArrayList<>();
         this.caveRows = caveRows;
         this.caveColumns = caveColumns;
+    }
+
+    // Method to get the information about a specific round:
+    public void setInfo(int roomNumber, boolean[] surroundings, String nsew, boolean smell){
+        this.roomNumber = roomNumber;
+        this.nearWumpus = surroundings[0];
+        this.nearPit = surroundings[1];
+        this.nearTreasure = surroundings[2];
+        this.nsew = nsew;
+        this.smell = smell; // only sets whether the player has been made unable to smell this round
+    }
+
+    // Attributes to store all the information about a round that the game is providing
+    private int roomNumber;
+    private boolean nearWumpus; // first index of surroundings
+    private boolean nearPit; // second index of surroundings
+    private boolean nearTreasure; // third index of surroundings
+    private String nsew;
+    private boolean smell;
+
+    // basic make move method to test that the player actually interacts with the game
+    public String makeMove(){
+        System.out.println("m");
+        return "m";
+    }
+
+    // just gets a random direction to work out if the game can actually interact with the computer
+    public String chooseDirection(){
+        Random random = new Random();
+        int index = random.nextInt(nsew.split("-").length);
+        String direction = nsew.split("-")[index];
+        System.out.println(direction);
+        return direction;
     }
 
     //private ArrayList<ArrayList<Integer>> wumpusLocation;
