@@ -55,7 +55,7 @@ public class TextGame {
             }
 
             // print out the room number the player is in
-            int roomNumber = coords[0] * 20 + coords[1] + 1; // calculates the correct room number
+            int roomNumber = coords[0] * cave.xSize + coords[1] + 1; // calculates the correct room number
             printRoom(roomNumber);
 
             // check content of neighbouring cells
@@ -69,6 +69,7 @@ public class TextGame {
             if(ai){
                 aiPlayer.setInfo(roomNumber, surroundings, nsew, smell);
                 smell = true; // set smell back to true after informing the ai so it only gets told the round it happens
+                surroundings = new boolean[]{false, false, false}; // reset whether it is next to something
             }
 
 
@@ -104,8 +105,6 @@ public class TextGame {
                     System.out.print(cave.getWumpus());
                 } else if (i == playerCoords[0] && j == playerCoords[1]) {
                     System.out.print(cave.getPlayer());
-                } else if (cave.getLayout()[i][j].getArtifact() != null) {
-                    System.out.print(cave.getLayout()[i][j].getArtifact());
                 } else {
                     System.out.print(cave.getLayout()[i][j]);
                 }
