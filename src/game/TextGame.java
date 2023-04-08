@@ -457,7 +457,7 @@ public class TextGame {
         int height = setDimensions(true);
         int width = setDimensions(false);
         aiPlayer = new AI(height, width); // Tell the AI the size of the caves
-        int total = height * width - (height + width) - 1;
+        int total = height * width - (height + width);
         int walls = (int) ((setWalls(total) / 100) * total);
         total -= walls;
         int bats = setLayout(false, total);
@@ -617,9 +617,6 @@ public class TextGame {
         if (layout < 0 || layout > 100) {
             layout = setWalls(total);
             return layout;
-        }
-        if (layout == 100) {
-            layout = 99;
         }
         return layout;
     }
