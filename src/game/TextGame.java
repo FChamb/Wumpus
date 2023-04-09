@@ -16,8 +16,9 @@ public class TextGame {
     // information for the ai player
     private AI aiPlayer;
     private boolean ai;
-    private boolean[] surroundings = {false, false, false};
-    private boolean smell = true;
+    // nearWumpus, nearPit, nearTreasure, able to smell, picked up by bat, able to see, foundTreasure, hit wumpus with arrow
+    private boolean[] surroundings = {false, false, false, true, false, true, false, false};
+    private int wumpusLives;
 
     // Counters for blindness and loss of smell
     private int blind = -1;
@@ -67,9 +68,8 @@ public class TextGame {
 
             // give the ai player the required information before asking them to make a move
             if(ai){
-                aiPlayer.setInfo(roomNumber, surroundings, nsew, smell);
-                smell = true; // set smell back to true after informing the ai so it only gets told the round it happens
-                surroundings = new boolean[]{false, false, false}; // reset whether it is next to something
+                aiPlayer.setInfo(roomNumber, surroundings, nsew, cave.getWumpus().getLives());
+                surroundings = new boolean[]{false, false, false, true, false, true, surroundings[6], false}; // reset whether it is next to something
             }
 
 
@@ -79,6 +79,8 @@ public class TextGame {
 
             // check current cell is safe
             checkCell(coords[0], coords[1]);
+            // update the players coordinates after checking if the room is safe (to see if a bat moved them)
+            coords = cave.getPlayer().getCoords();
             System.out.println();
 
             // count the number of rounds played with presets
@@ -128,6 +130,7 @@ public class TextGame {
             } else {
                 printShieldUse(); // the player lives if they have a shield
                 moveWumpus(); // move the wumpus to another room
+                surroundings[7] = false;
             }
         }
 
@@ -140,6 +143,7 @@ public class TextGame {
             printBat();
             // update the players position
             placePlayer();
+            surroundings[4] = true;
         }
         // Only check for artefacts if the room is safe
         else {
@@ -148,6 +152,7 @@ public class TextGame {
         if (type.equals("G") && !cave.getPlayer().hadFoundTreasure()) { // treasure room
             printTreasureFound();
             cave.getPlayer().findTreasure(); // set the treasure as having been found
+            surroundings[6] = true;
         }
         if (type.equals("X") && cave.getPlayer().hadFoundTreasure()) { // exit room
             printVictory();
@@ -168,16 +173,18 @@ public class TextGame {
         String name = artefact.getName();
         if (name.equals("D")) { // shield <- defence against wumpus once
             cave.getPlayer().addItem(artefact); // add the shield to the inventory
+            surroundings[7] = true;
         }
         if (name.equals("U")) { // weird drinking water <- loose sense of smell for 5 rounds
             blockedNose = 5;
-            smell = false;
+            surroundings[3] = false;
         }
         if (name.equals(">")) { // arrow <- gain an arrow
             cave.getPlayer().addArrow(); // Give the player another arrow
         }
         if (name.equals("~")) { // dusty room <- print empty board for 5 rounds
             blind = 5;
+            surroundings[5] = false;
         }
 
         // Remove the artefact from the room once it has been picked up
@@ -214,7 +221,7 @@ public class TextGame {
                         pit = true; // Make sure it does not print the pit message again
                     }
                     // Only print that the treasure is nearby if the treasure has not been found
-                    if (type.equals("G") && !cave.getPlayer().hadFoundTreasure()) {
+                    if (type.equals("G") && !cave.getPlayer().hadFoundTreasure() && blind < 0) {
                         printTreasure();
                         surroundings[2] = true;
                     }
@@ -313,6 +320,7 @@ public class TextGame {
                 printWumpusKill();
                 printWumpusLives();
                 moveWumpus();
+                surroundings[7] = true;
             }
         } else {
             printWumpusMiss();
