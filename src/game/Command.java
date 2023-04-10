@@ -5,10 +5,11 @@ import display.Terminal;
 public class Command {
 
     public static final Command[] COMMANDS = new Command[] {
-        new Command("help" , ""         , "Display information about each command."   ,               "h", "?"),
-        new Command("quit" , ""         , "Return to the main menu."                  ,               "q"     ),
-        new Command("move" , "<N/S/E/W>", "Move the player in any cardinal direction.",         "go", "m", "g"),
-        new Command("shoot", "<N/S/E/W>", "Shoot an arrow in any cardinal direction." , "fire",       "s", "f")
+        new Command("help"     , ""         , "Display information about each command."   ,                   "h", "?"),
+        new Command("quit"     , ""         , "Return to the main menu."                  ,                   "q"     ),
+        new Command("move"     , "<N/S/E/W>", "Move the player in any cardinal direction.",             "go", "m", "g"),
+        new Command("shoot"    , "<N/S/E/W>", "Shoot an arrow in any cardinal direction." , "fire"    ,       "s", "f"),
+        new Command("artifacts", ""         , "List the artifacts you have collected."    , "artifact",       "a"     )
     };
 
     public static final byte[]  command_fore = new byte[] {(byte)63 , (byte)63 , (byte)63 };
@@ -60,7 +61,7 @@ public class Command {
         text = "";
         index = 0;
         for(Command c : COMMANDS) {
-            text += (index == 0 ? "" : "\n\n") + c.command + " " + c.arguments;
+            text += (index == 0 ? "" : "\n\n") + c.command;
             for(String alias : c.aliases) text += "\n\n  "+alias;
 
             index++;
@@ -73,9 +74,10 @@ public class Command {
         text = "";
         y_shift = 0;
         for(Command c : COMMANDS) {
-            cursor.move(x + c.command.length(), y+y_shift);
-
-            terminal.print(" "+c.arguments);
+            if(c.arguments.length() != 0) {
+                cursor.move(x + c.command.length(), y+y_shift);
+                terminal.print(" "+c.arguments);
+            }
 
             y_shift += 2*(c.aliases.length + 1);
         }

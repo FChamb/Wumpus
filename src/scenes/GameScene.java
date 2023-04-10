@@ -28,7 +28,7 @@ public class GameScene extends Scene {
         display.clearScreen();
         display.printGameInput(input_position[0], input_position[1]);
         if(  show_help) display.printHelp(help_position[0], help_position[1]);
-        if(input_error) display.printError(98, 35, "Input Error");
+        if(input_error) ;//display.printError(98, 35, "Input Error");
         display.setGameCursor(input_position[0] + 35, input_position[1]);
 
         // process input
