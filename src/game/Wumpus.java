@@ -43,6 +43,10 @@ public class Wumpus {
 
     // Setter for the number of lives
     public void setLives(int lives){
+        // If the lives is set to 0 or below
+        if(lives < 1){
+            alive = false;
+        }
         this.lives = lives;
     }
 

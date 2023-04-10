@@ -177,28 +177,6 @@ public class AI {
         }
 
         String safeMoves = getSafeMoves();
-
-        /*
-         * if(blind > 0 || blockedNose > 0){ // If unable to smell or see then walk back
-         * and forth
-         * move = moveBackwards();
-         * }
-         * else if(checkPreviousMoves()) { // If walking in back and forth, get a random
-         * move
-         * move = chooseRandom(nsew);
-         * }
-         * else if(treasureMode){ // If near the treasure move towards it
-         * System.out.println("It is in treasure mode");
-         * move = moveToTreasure(safeMoves);
-         * }
-         * else if(exitMode){ // If found the treasure and exit, move towards the exit
-         * System.out.println("It is in exit mode");
-         * move = moveTowards(exitLocation, safeMoves);
-         * }
-         * else{ // If nothing has been found, move randomly
-         * move = chooseRandom(safeMoves);
-         * }
-         */
         move = getMove(safeMoves);
         // Keep track of the moves
         previousMoves.add(move);
@@ -224,10 +202,8 @@ public class AI {
         } else if (checkPreviousMoves()) { // If walking in back and forth, get a random move
             move = chooseRandom(nsew);
         } else if (treasureMode) { // If near the treasure move towards it
-            System.out.println("It is in treasure mode");
             move = moveToTreasure(safeMoves);
         } else if (exitMode) { // If found the treasure and exit, move towards the exit
-            System.out.println("It is in exit mode");
             move = moveTowards(exitLocation, safeMoves);
         } else { // If nothing has been found, move randomly
             move = chooseRandom(safeMoves);
@@ -476,7 +452,6 @@ public class AI {
      */
     public String moveTowards(int[] coords, String safeMoves) {
         int[] location = roomNumbers.get(roomNumber);
-        System.out.println("Moving towards: " + coords[0] + "   " + coords[1]);
         // If they are not in the same row
         if (location[0] != coords[0]) {
             if (location[0] > coords[0]) { // Player is further down

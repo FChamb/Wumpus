@@ -44,8 +44,8 @@ public class TextGame {
             // print the cave when not blind
             if (blind < 0) {
                 updateDisplayBoard();
-                printBoard();
-                // printCaveDetails(); // for testing purposes
+                // printBoard();
+                printCaveDetails(); // for testing purposes
             }
 
             // Check current cell is safe
@@ -155,8 +155,8 @@ public class TextGame {
             // Print the new cave layout
             if (blind < 0) {
                 updateDisplayBoard();
-                printBoard();
-                // printCaveDetails(); // for testing purposes
+                // printBoard();
+                printCaveDetails(); // for testing purposes
             }
             checkCell(playerCoords[0], playerCoords[1]);
             return;
@@ -341,8 +341,11 @@ public class TextGame {
         int row = random.nextInt(3) - 1; // Will return a number [-1,1]
         int column = random.nextInt(3) - 1;
 
+        int[] playerCoords = cave.getPlayer().getCoords();
         // Make sure the wumpus moves and does not stay still
-        while (row == 0 && column == 0) {
+        //  or move to where the player is
+        while ((row == 0 && column == 0) || (playerCoords[0] == validateRow(coords[0] + row)
+                && playerCoords[1] == validateColumn(coords[1] + column))) {
             row = random.nextInt(3) - 1;
             column = random.nextInt(3) - 1;
         }
@@ -621,7 +624,7 @@ public class TextGame {
         System.out.println("Please enter the number of arrows the player should have");
         String number = scanner.nextLine();
 
-        int arrows = 0;
+        int arrows = -1;
 
         // Check it is a number
         try {
@@ -632,8 +635,8 @@ public class TextGame {
             return arrows;
         }
 
-        // Check it is in the desired range [1, infinity]
-        if (arrows < 1) {
+        // Check it is in the desired range [0, infinity]
+        if (arrows < 0) {
             arrows = setArrows();
             return arrows;
         }
@@ -658,8 +661,8 @@ public class TextGame {
             return lives;
         }
 
-        // Make sure the Wumpus has at least one life
-        if (lives < 1) {
+        // Make sure the Wumpus does not have negative lives
+        if (lives < 0) {
             lives = setWumpusLives();
             return lives;
         }
