@@ -119,7 +119,6 @@ public class Cave {
         x = Integer.parseInt(path.get(path.size() - 1).split("x")[0]);
         y = Integer.parseInt(path.get(path.size() - 1).split("x")[1]);
         this.cave[x][y] = new Room("X");
-        System.out.println(x + " " + y);
     }
 
     public void generateObstacles() {
@@ -184,6 +183,16 @@ public class Cave {
         int x = Integer.parseInt(this.validRooms.get(i).split("x")[0]);
         int y = Integer.parseInt(this.validRooms.get(i).split("x")[1]);
         return new int[]{x, y};
+    }
+
+    public void setPlayer() {
+        int x = (int) (Math.random() * this.cave.length);
+        int y = (int) (Math.random() * this.cave[1].length);
+        if (this.cave[x][y].getType().matches("w|o| ") || (this.wumpus.getCoords()[0] == x && this.wumpus.getCoords()[1] == y)) {
+            setPlayer();
+        } else {
+            this.player.setCoords(x, y);
+        }
     }
 
     public String toString() {

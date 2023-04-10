@@ -44,16 +44,21 @@ public class TextGame {
         // Check the player has not died off the start <- not possible i dont think but
         // who knows
         int[] coords = cave.getPlayer().getCoords();
-        checkCell(coords[0], coords[1]);
 
         while (playing) {
-
             // print the cave (including the players position) (only when not blind)
             if (blind < 0) {
                 updateDisplayBoard(cave.getPlayer());
-                // printBoard(cave.getPlayer());
-                printCaveDetails(); // for testing purposes
+                printBoard();
+                //printCaveDetails(); // for testing purposes
             }
+
+            // check current cell is safe
+            checkCell(coords[0], coords[1]);
+            if (!playing) {
+                return;
+            }
+            coords = cave.getPlayer().getCoords();
 
             // print out the room number the player is in
             int roomNumber = coords[0] * cave.xSize + coords[1] + 1; // calculates the correct room number
@@ -75,10 +80,7 @@ public class TextGame {
 
             // get the players next move
             getMove();
-            coords = cave.getPlayer().getCoords();
 
-            // check current cell is safe
-            checkCell(coords[0], coords[1]);
             // update the players coordinates after checking if the room is safe (to see if a bat moved them)
             coords = cave.getPlayer().getCoords();
             System.out.println();
@@ -135,14 +137,22 @@ public class TextGame {
 
         // Check the different room types
         String type = room.getType();
+        if (type.equals("w")) { // superbat room
+            printBat();
+            // update the players position
+            cave.setPlayer();
+            surroundings[4] = true;
+            int[] playerCoords = cave.getPlayer().getCoords();
+            if (blind < 0) {
+                updateDisplayBoard(cave.getPlayer());
+                printBoard();
+                //printCaveDetails(); // for testing purposes
+            }
+            checkCell(playerCoords[0], playerCoords[1]);
+        }
         if (type.equals("o")) { // pit room
             printPitLoss();
             playing = false; // end the game
-        } else if (type.equals("w")) { // superbat room
-            printBat();
-            // update the players position
-            placePlayer();
-            surroundings[4] = true;
         }
         // Only check for artefacts if the room is safe
         else {
@@ -279,12 +289,6 @@ public class TextGame {
         return builder.toString().substring(0, builder.toString().length() - 1);
     }
 
-    // Method to place the player and the wumpus in the cave
-    public void placePlayer() {
-        int[] coords = this.cave.getRandom();
-        cave.getPlayer().setCoords(coords[0], coords[1]);
-    }
-
     public void placeWumpus() {
         int[] coords = this.cave.getRandom();
         cave.getWumpus().setCoords(coords[0], coords[1]);
@@ -352,19 +356,22 @@ public class TextGame {
     }
 
     // Method to display the basic board
-    public void printBoard(Player player) {
+    public void printBoard() {
         // Code to print a different letter if the player has a name beginning with an X
         String icon = "X ";
         if (cave.getPlayer().toString().toLowerCase().contains("x")) {
             icon = "V ";
         }
-        int[] playerCoords = player.getCoords();
+        int[] playerCoords = cave.getPlayer().getCoords();
         for (int i = 0; i < displayBoard.size(); i++) {
             for (int j = 0; j < displayBoard.get(i).size(); j++) {
                 // if the player is in that position print "O"
                 if (i == playerCoords[0] && j == playerCoords[1]) {
                     // Print out the players symbol
                     System.out.print(cave.getPlayer().toString().substring(1));
+                }
+                else if (cave.getLayout()[i][j].getType().equals(" ")) {
+                    System.out.print("  ");
                 }
                 // if the cave is true, the player has been there
                 else if (displayBoard.get(i).get(j)) {
@@ -490,6 +497,7 @@ public class TextGame {
         // Detect if the player wants the ai to play
         if(name.equalsIgnoreCase("ai")){
             ai = true;
+            name = "@";
         }
         return name;
     }

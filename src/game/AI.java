@@ -3,6 +3,35 @@ package game;
 import java.util.*;
 
 public class AI{
+    // Attributes to store all the information about a round that the game is providing
+    private int roomNumber;
+    private boolean[] surroundings;
+    private String nsew;
+    private int wumpusLives;
+
+    // Attributes that the logic operates around
+    private HashMap<Integer, int[]> roomNumbers;
+    private HashMap<Integer, Boolean> wumpus = new HashMap<>();
+    private HashMap<Integer, Boolean> pits = new HashMap<>();
+    private HashMap<Integer, Boolean> treasure = new HashMap<>();
+    private ArrayList<Integer> bats = new ArrayList<>(); // List of rooms that contain super bats so they can be avoided
+    private int caveRows;
+    private int caveColumns;
+    private ArrayList<Integer> previousRooms = new ArrayList<>();
+    private ArrayList<String> previousMoves = new ArrayList<>();
+    private int[] wumpusLocation = null;
+    private int[] exitLocation = null;
+    // Counter to stop it from trying to select a random number forever if it is not possible for it to be unique
+    private int randomCount = 0;
+    // Counters to work out when the player is blind/blocked nose so the ai can ask accordingly
+    private int blind = 0;
+    private int blockedNose = 0;
+    private boolean treasureMode = false;
+    private boolean shooting = false;
+    private boolean shot = false;
+    private boolean beenNearTreasure = false;
+    private boolean beenNearWumpus = false;
+    private boolean exitMode = false;
     
     // Create a player object that is called 'AI'
     public AI(int caveRows, int caveColumns){
@@ -80,36 +109,6 @@ public class AI{
         }
     }
 
-    // Attributes to store all the information about a round that the game is providing
-    private int roomNumber;
-    private boolean[] surroundings;
-    private String nsew;
-    private int wumpusLives;
-
-    // Attributes that the logic operates around
-    private HashMap<Integer, int[]> roomNumbers;
-    private HashMap<Integer, Boolean> wumpus = new HashMap<>();
-    private HashMap<Integer, Boolean> pits = new HashMap<>(); 
-    private HashMap<Integer, Boolean> treasure = new HashMap<>();
-    private ArrayList<Integer> bats = new ArrayList<>(); // List of rooms that contain super bats so they can be avoided
-    private int caveRows;
-    private int caveColumns;
-    private ArrayList<Integer> previousRooms = new ArrayList<>();
-    private ArrayList<String> previousMoves = new ArrayList<>();
-    private int[] wumpusLocation = null;
-    private int[] exitLocation = null;
-    // Counter to stop it from trying to select a random number forever if it is not possible for it to be unique
-    private int randomCount = 0;
-    // Counters to work out when the player is blind/blocked nose so the ai can ask accordingly
-    private int blind = 0;
-    private int blockedNose = 0;
-    private boolean treasureMode = false;
-    private boolean shooting = false;
-    private boolean shot = false;
-    private boolean beenNearTreasure = false;
-    private boolean beenNearWumpus = false;
-    private boolean exitMode = false;
-
     // basic make move method to test that the player actually interacts with the game
     public String makeMove(){
         // Shoot if the wumpus is guaranteed to be in an adjacent room
@@ -136,6 +135,9 @@ public class AI{
         // If unable to smell or see then walk back and forth for 5 moves
         if(blind > 0 || blockedNose > 0){
             move = moveBackwards();
+        }
+        else if(checkPreviousMoves()) {
+            move = chooseRandom(nsew);
         }
         else if(treasureMode){
             System.out.println("It is in treasure mode");
@@ -529,6 +531,20 @@ public class AI{
             column = 0;
         }
         return column;
+    }
+
+    public boolean checkPreviousMoves() {
+        if (previousRooms.size() < 10) {
+            return false;
+        }
+        Set<Integer> duplicates = new HashSet<>();
+        for (int i = 1; i < 11; i++) {
+            duplicates.add(previousRooms.get(previousRooms.size() - i));
+        }
+        if (duplicates.size() < 3) {
+            return true;
+        }
+        return false;
     }
 
 }
