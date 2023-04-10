@@ -4,92 +4,88 @@ import java.util.*;
 
 public class TextGame {
     // attributes
-    private Cave cave; // cave object that the game works around
-    // boolean to run the game
-    private boolean playing = true;
-    // attribute containing an arraylist of booleans representing where the player
-    // has been
+    private Cave cave; // Cave for the game
+    private boolean playing = true; // Boolean to run the game
     private ArrayList<ArrayList<Boolean>> displayBoard = new ArrayList<>();
-    // scanner to ask for user input
     private Scanner scanner = new Scanner(System.in);
 
-    // information for the ai player
+    // Information for the ai player
     private AI aiPlayer;
     private boolean ai;
     // nearWumpus, nearPit, nearTreasure, able to smell, picked up by bat, able to see, foundTreasure, foundExit
     private boolean[] surroundings = {false, false, false, true, false, true, false, false};
-    private int wumpusLives;
-
     // Counters for blindness and loss of smell
     private int blind = -1;
     private int blockedNose = -1;
 
     public static void main(String[] args) {
-        TextGame test = new TextGame(new Player("player"));
+        TextGame test = new TextGame();
         test.playGame();
     }
 
-    public TextGame(Player player) {
+    /**
+     * Constructor to set up the cave for the game
+     */
+    public TextGame() {
         // Set up the board
-        setUp(player);
-        setUpBoard(cave);
+        setUp(new Player("player"));
+        setUpBoard();
     }
 
-    public Cave getCave() {
-        return this.cave;
-    }
-
-    // Method to play through the motions of the game
+    /**
+     * Runs the function of the game
+     */
     public void playGame() {
-        // Check the player has not died off the start <- not possible i dont think but
-        // who knows
+        // Get the players coordinates
         int[] coords = cave.getPlayer().getCoords();
 
         while (playing) {
-            // print the cave (including the players position) (only when not blind)
+            // print the cave when not blind
             if (blind < 0) {
-                updateDisplayBoard(cave.getPlayer());
+                updateDisplayBoard();
                 printBoard();
                 //printCaveDetails(); // for testing purposes
             }
 
-            // check current cell is safe
+            // Check current cell is safe
             checkCell(coords[0], coords[1]);
+            // End the game if the player has lost
             if (!playing) {
                 return;
             }
+            // Update the players coordinates
             coords = cave.getPlayer().getCoords();
 
-            // print out the room number the player is in
-            int roomNumber = coords[0] * cave.xSize + coords[1] + 1; // calculates the correct room number
+            // Print out the room number the player is in
+            int roomNumber = coords[0] * cave.xSize + coords[1] + 1;
             printRoom(roomNumber);
 
-            // check content of neighbouring cells
+            // Check content of neighbouring cells
             checkNeighbours(coords[0], coords[1]);
 
-            // print out the neighbouring cells
+            // Print out the neighbouring cells
             String nsew = getWalls();
             printNeighbours(nsew);
 
-            // give the ai player the required information before asking them to make a move
+            // Give the ai the required information
             if(ai){
-                aiPlayer.setInfo(roomNumber, surroundings, nsew, cave.getWumpus().getLives());
-                surroundings = new boolean[]{false, false, false, true, false, true, surroundings[6], false}; // reset whether it is next to something
+                aiPlayer.setInfo(roomNumber, surroundings, nsew);
+                // Reset all the booleans for next round
+                surroundings = new boolean[]{false, false, false, true, false, true, surroundings[6], false};
             }
 
-
-            // get the players next move
+            // Get the players next move
             getMove();
 
-            // update the players coordinates after checking if the room is safe (to see if a bat moved them)
+            // Update the players coordinates after performing move
             coords = cave.getPlayer().getCoords();
             System.out.println();
 
-            // count the number of rounds played with presets
+            // Update the counters
             blind--;
             blockedNose--;
 
-            // if the ai is playing make the whole game wait
+            // If the ai is playing make the whole game wait
             if(ai){
                 try{
                     Thread.sleep(1000);
@@ -100,16 +96,22 @@ public class TextGame {
         }
     }
 
+    /**
+     * Prints the contents of the cave, including the locations of the treasure and the wumpus
+     */
     public void printCaveDetails() {
         int[] wumpusCoords = cave.getWumpus().getCoords();
         int[] playerCoords = cave.getPlayer().getCoords();
         for (int i = 0; i < cave.xSize; i++) {
             for (int j = 0; j < cave.ySize; j++) {
                 if (i == wumpusCoords[0] && j == wumpusCoords[1]) {
+                    // Print the wumpus
                     System.out.print(cave.getWumpus());
                 } else if (i == playerCoords[0] && j == playerCoords[1]) {
+                    // Print the player
                     System.out.print(cave.getPlayer());
                 } else {
+                    // Print the room
                     System.out.print(cave.getLayout()[i][j]);
                 }
             }
@@ -117,69 +119,81 @@ public class TextGame {
         }
     }
 
-    // Method to check the current cell
+    /**
+     * Checks that the current cell is safe
+     * @param row - row the player is in
+     * @param column - column the player is in
+     */
     public void checkCell(int row, int column) {
-        // get the specific room in the cave + its type
+        // Get the specific room in the cave
         Room room = cave.getLayout()[row][column];
         int[] coords = cave.getWumpus().getCoords();
-        // If the wumpus is in the room
+        // Check if the wumpus is in the room
         if (row == coords[0] && column == coords[1] && cave.getWumpus().isAlive()) {
-            // action performed if the wumpus is in the room and alive
-            if (!cave.getPlayer().useShield()) { // if the player does not have a shield
+            if (!cave.getPlayer().useShield()) { // If the player does not have a shield
                 printWumpusLoss();
-                playing = false; // end the game
+                printLoss();
+                playing = false; // End the game
                 return;
             } else {
-                printShieldUse(); // the player lives if they have a shield
-                moveWumpus(); // move the wumpus to another room
+                printShieldUse(); // The player lives if they have a shield
+                moveWumpus(); // Move the wumpus
             }
         }
 
         // Check the different room types
         String type = room.getType();
-        if (type.equals("w")) { // superbat room
+        if (type.equals("w")) { // Superbat room
             printBat();
-            // update the players position
+            // Update the players position
             cave.setPlayer();
             surroundings[4] = true;
             int[] playerCoords = cave.getPlayer().getCoords();
+            // Print the new cave layout
             if (blind < 0) {
-                updateDisplayBoard(cave.getPlayer());
+                updateDisplayBoard();
                 printBoard();
                 //printCaveDetails(); // for testing purposes
             }
             checkCell(playerCoords[0], playerCoords[1]);
+            return;
         }
-        if (type.equals("o")) { // pit room
+        if (type.equals("o")) { // Pit room
             printPitLoss();
-            playing = false; // end the game
+            printLoss();
+            playing = false; // End the game
+            return;
         }
         // Only check for artefacts if the room is safe
-        else {
-            checkArtefact(room);
-        }
-        if (type.equals("G") && !cave.getPlayer().hadFoundTreasure()) { // treasure room
+        checkArtefact(room);
+
+        // Look for positive room types
+        if (type.equals("G") && !cave.getPlayer().hadFoundTreasure()) { // Treasure room
             printTreasureFound();
-            cave.getPlayer().findTreasure(); // set the treasure as having been found
+            cave.getPlayer().findTreasure(); // Set the treasure as having been found
             surroundings[6] = true;
         }
-        if (type.equals("X")) { // exit room
+        if (type.equals("X")) { // Exit room
+            surroundings[7] = true;
             if(!cave.getPlayer().hadFoundTreasure()){
                 printExit();
-                surroundings[7] = true;
             }
             if(cave.getPlayer().hadFoundTreasure()){
                 printVictory();
-                surroundings[7] = true;
                 playing = false;
             }
         }
     }
 
     // Method for checking if the room contains an artefact
+    /**
+     * Checks if the given room contains an artefact
+     * @param room - the room being checked
+     */
     public void checkArtefact(Room room) {
         Artifact artefact = room.getArtifact();
-        if (artefact == null) { // If the artefact is null there are is no artefact
+        // If the artefact is null there are is no artefact
+        if (artefact == null) {
             return;
         }
         // Print out the effect associated with the artefact
@@ -187,17 +201,21 @@ public class TextGame {
 
         // Work out what sort of artefact it is
         String name = artefact.getName();
-        if (name.equals("D")) { // shield <- defence against wumpus once
-            cave.getPlayer().addItem(artefact); // add the shield to the inventory
+        if (name.equals("D")) { // Shield
+            // Add the shield to the inventory
+            cave.getPlayer().addItem(artefact);
         }
-        if (name.equals("U")) { // weird drinking water <- loose sense of smell for 5 rounds
+        if (name.equals("U")) { // Weird drinking water
+            // Make the player unable to smell for 5 rounds
             blockedNose = 5;
             surroundings[3] = false;
         }
-        if (name.equals(">")) { // arrow <- gain an arrow
-            cave.getPlayer().addArrow(); // Give the player another arrow
+        if (name.equals(">")) { // Arrow 
+            // Give the player another arrow
+            cave.getPlayer().addArrow();
         }
-        if (name.equals("~")) { // dusty room <- print empty board for 5 rounds
+        if (name.equals("~")) { // Dusty room
+            // Make the player unable to see for 5 rounds
             blind = 5;
             surroundings[5] = false;
         }
@@ -206,12 +224,16 @@ public class TextGame {
         room.setArtifact(null);
     }
 
+    /**
+     * Checks the contents of the neighbouring rooms to the given room
+     * @param row - the row of the room
+     * @param column - the column of the room
+     */
     public void checkNeighbours(int row, int column) {
-        boolean pit = false; // Keeps track of if the pit message has already been printed to avoid printing
-                             // it twice
+        boolean pit = false; // Boolean to only print the pit message once
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
-                // discard the middle cell from checking
+                // Do not check the middle cell
                 if (!(i == 0 && j == 0)) {
                     // Make the board toroidal
                     int checkRow = validateRow(row + i);
@@ -230,10 +252,11 @@ public class TextGame {
 
                     // Check the different room types
                     String type = room.getType();
+                    // If it is a pit
                     if (type.equals("o") && !pit) {
                         printPit();
                         surroundings[1] = true;
-                        pit = true; // Make sure it does not print the pit message again
+                        pit = true; // Only print the message once
                     }
                     // Only print that the treasure is nearby if the treasure has not been found
                     if (type.equals("G") && !cave.getPlayer().hadFoundTreasure() && blind < 0) {
@@ -245,6 +268,11 @@ public class TextGame {
         }
     }
 
+    /**
+     * Make the rows toroidal
+     * @param row - the row being checked
+     * @return the validated row value
+     */
     public int validateRow(int row) {
         if (row < 0) {
             row = cave.xSize - 1;
@@ -255,6 +283,11 @@ public class TextGame {
         return row;
     }
 
+    /**
+     * Make the columns toroidal
+     * @param column - the column being checked
+     * @return the validated column value
+     */
     public int validateColumn(int column) {
         if (column < 0) {
             column = cave.ySize - 1;
@@ -265,10 +298,12 @@ public class TextGame {
         return column;
     }
 
-    // Method to get how many of the adjacent squares contain walls
+    /**
+     * Gets the positions of the walls surrounding the player and returns the directions the player can move in based on that
+     * @return the possible directions the player can move in
+     */
     public String getWalls() {
-        int[] playerCoords = cave.getPlayer().getCoords();
-        int[] coords = new int[] { playerCoords[0], playerCoords[1] }; // dont even know if i need these but we will see
+        int[] coords = cave.getPlayer().getCoords();
         StringBuilder builder = new StringBuilder();
 
         // Check if all the adjacent squares are not walls
@@ -285,23 +320,20 @@ public class TextGame {
             builder.append("W-"); // W moves the player one to the left
         }
 
-        // return the string minus the final '-'
+        // Return the string minus the final '-'
         return builder.toString().substring(0, builder.toString().length() - 1);
     }
 
-    public void placeWumpus() {
-        int[] coords = this.cave.getRandom();
-        cave.getWumpus().setCoords(coords[0], coords[1]);
-    }
-
-    // Method to move the wumpus specifically to an adjacent square
+    /**
+     * Moves the wumpus into one of the surrounding squares
+     */
     public void moveWumpus() {
         int[] coords = cave.getWumpus().getCoords();
         Random random = new Random();
-        int row = random.nextInt(3) - 1; // will return a number [-1,1]
+        int row = random.nextInt(3) - 1; // Will return a number [-1,1]
         int column = random.nextInt(3) - 1;
 
-        // Make sure the wumpus actually moves and does not just stay still
+        // Make sure the wumpus moves and does not stay still
         while (row == 0 && column == 0) {
             row = random.nextInt(3) - 1;
             column = random.nextInt(3) - 1;
@@ -310,11 +342,18 @@ public class TextGame {
         cave.getWumpus().setCoords(validateRow(coords[0] + row), validateColumn(coords[1] + column));
     }
 
-    // Method to move without a room number
+    /**
+     * Moves the players location to the provided coordinates
+     * @param coords - the coordinates the player is moving to
+     */
     public void moveRoom(int[] coords) {
         cave.getPlayer().setCoords(coords[0], coords[1]);
     }
 
+    /**
+     * Shoots the given room
+     * @param coords - coordinates of the room being shot
+     */
     public void shootRoom(int[] coords) {
         // Shooting does nothing if the wumpus is dead or if the player has no arrows
         if (!cave.getWumpus().isAlive() || !cave.getPlayer().useArrow()) {
@@ -325,39 +364,45 @@ public class TextGame {
         if (coords[0] == wumpusCoords[0] && coords[1] == wumpusCoords[1]) {
             // Use one of the wumpus' lives
             if (cave.getWumpus().hitWumpus()) {
-                // the wumpus moves after being hit <- if it is still alive
+                // The wumpus moves after being hit
                 printWumpusKill();
                 printWumpusLives();
                 moveWumpus();
             }
         } else {
             printWumpusMiss();
-            // move the wumpus to an adjacent room
+            // Move the wumpus to an adjacent room
             moveWumpus();
         }
     }
 
-    // Method to set up the display board based on the board size
-    public void setUpBoard(Cave cave) {
-        int rows = cave.getLayout().length;
-        int columns = cave.getLayout()[0].length;
-        for (int i = 0; i < rows; i++) {
+    /**
+     * Creates a board of booleans containing where the player has been on the board 
+     */
+    public void setUpBoard() {
+        for (int i = 0; i < cave.xSize; i++) {
             displayBoard.add(new ArrayList<>());
-            for (int j = 0; j < columns; j++) {
+            for (int j = 0; j < cave.ySize; j++) {
+                // Create the entire board to be false
                 displayBoard.get(i).add(false);
             }
         }
     }
 
-    // updates the display board to show where the player has been
-    public void updateDisplayBoard(Player player) {
-        int[] coords = player.getCoords();
+    /**
+     * Updates where the player has been on the board
+     */
+    public void updateDisplayBoard() {
+        int[] coords = cave.getPlayer().getCoords();
+        // Set places where the player has been to true
         displayBoard.get(coords[0]).set(coords[1], true);
     }
 
-    // Method to display the basic board
+    /**
+     * Prints the board of where the player has been (including walls)
+     */
     public void printBoard() {
-        // Code to print a different letter if the player has a name beginning with an X
+        // Print a different letter if the player has a name beginning with an X
         String icon = "X ";
         if (cave.getPlayer().toString().toLowerCase().contains("x")) {
             icon = "V ";
@@ -365,19 +410,20 @@ public class TextGame {
         int[] playerCoords = cave.getPlayer().getCoords();
         for (int i = 0; i < displayBoard.size(); i++) {
             for (int j = 0; j < displayBoard.get(i).size(); j++) {
-                // if the player is in that position print "O"
+                // If the player is in that position
                 if (i == playerCoords[0] && j == playerCoords[1]) {
                     // Print out the players symbol
                     System.out.print(cave.getPlayer().toString().substring(1));
                 }
+                // If it is a wall print nothing
                 else if (cave.getLayout()[i][j].getType().equals(" ")) {
                     System.out.print("  ");
                 }
-                // if the cave is true, the player has been there
+                // If the cave is true, the player has been there
                 else if (displayBoard.get(i).get(j)) {
                     System.out.print(icon); // X or V depending on player name
                 }
-                // if the cave is false, the player has not been there
+                // If the cave is false, the player has not been there
                 else if (!displayBoard.get(i).get(j)) {
                     System.out.print(". "); // .
                 }
@@ -386,35 +432,43 @@ public class TextGame {
         }
     }
 
+    /**
+     * Gets whether the player wants to move or shoot
+     */
     public void getMove() {
         System.out.println("Shoot or Move (S-M)?");
         String decision = "";
-        if(ai){
+        if(ai){ // Get input from the AI if it is playing
             decision = aiPlayer.makeMove().toLowerCase();
-            // code to get input from the ai
         }
-        else{
+        else{ // Otherwise get input from the player
             decision = scanner.nextLine().toLowerCase();
         }
-        //String decision = scanner.nextLine().toLowerCase();
+        
+        // If the player decides to shoot
         if (decision.equals("s")) {
-            // print the number of arrows the player has
-            printArrows(cave.getPlayer());
-            // call the method for shooting
+            // Print the number of arrows the player has
+            printArrows();
             if (cave.getPlayer().getNumOfArrows() > 0) {
                 shootRoom(getRoomCoords(getDirection(false, getWalls())));
             }
-        } else if (decision.equals("m")) {
-            // call the method for moving
+        } // If the player decides to move
+        else if (decision.equals("m")) {
             moveRoom(getRoomCoords(getDirection(true, getWalls())));
         } else {
-            // call the method again if the input is invalid
+            // Call the method again if the input is invalid
             getMove();
         }
     }
 
-    // Method for get direction that uses only the available squares
+    /**
+     * Gets the direction the player wants to move/shoot in
+     * @param move - whether the player is moving or shooting
+     * @param nsew - the possible directions
+     * @return the decided upon direction
+     */
     public String getDirection(boolean move, String nsew) {
+        // Print different prompt depending on whether the player is moving or shooting
         if (move) {
             System.out.println("What direction do you want to move (" + nsew + ")?");
         } else {
@@ -423,7 +477,6 @@ public class TextGame {
         String direction = "";
         if(ai){
             direction = aiPlayer.chooseDirection();
-            // code to get input from the ai
         }
         else{
             direction = scanner.nextLine();
@@ -437,7 +490,7 @@ public class TextGame {
                 counter++;
             }
         }
-        // If it is not equal to any of the possible directions then get another input
+        // If it is not valid then get another input
         if (counter != 1) {
             direction = getDirection(move, nsew);
             return direction;
@@ -446,35 +499,40 @@ public class TextGame {
         return direction.toLowerCase();
     }
 
-    // Method for getting a room position from N/S/E/W
+    /**
+     * Gets the coordinates of the room that is being moved/shot into, based on the provided move
+     * @param nsew - the direction being moved in
+     * @return the coordinates of the room being moved/shot into
+     */
     public int[] getRoomCoords(String nsew) {
         // Get the players position
         int[] playerCoords = cave.getPlayer().getCoords();
-        // Make new coords to stop it from also changing the location of the player when
-        // the player shoots
         int[] coords = new int[] { playerCoords[0], playerCoords[1] };
-        if (nsew.equals("n")) {
-            coords[0] = validateRow(playerCoords[0] - 1); // N moves the played one upwards
+        if (nsew.equals("n")) { // N moves the played one upwards
+            coords[0] = validateRow(playerCoords[0] - 1); 
         }
-        if (nsew.equals("s")) {
-            coords[0] = validateRow(playerCoords[0] + 1); // S moves the player one downwards
+        if (nsew.equals("s")) { // S moves the player one downwards
+            coords[0] = validateRow(playerCoords[0] + 1);
         }
-        if (nsew.equals("e")) {
-            coords[1] = validateColumn(playerCoords[1] + 1); // E moves the player one to the right
+        if (nsew.equals("e")) { // E moves the player one to the right
+            coords[1] = validateColumn(playerCoords[1] + 1); 
         }
-        if (nsew.equals("w")) {
-            coords[1] = validateColumn(playerCoords[1] - 1); // W moves the player one to the left
+        if (nsew.equals("w")) { // W moves the player one to the left
+            coords[1] = validateColumn(playerCoords[1] - 1); 
         }
-        // Return the room number associated with the new room
+        // Return the coordinates of the room
         return coords;
     }
 
-    // Methods for getting info about setting up the game
+    /**
+     * Sets up the cave for the game based on user input
+     * @param player
+     */
     public void setUp(Player player) {
         player.setName(setName());
         int height = setDimensions(true);
         int width = setDimensions(false);
-        aiPlayer = new AI(height, width); // Tell the AI the size of the caves
+        aiPlayer = new AI(height, width);
         int total = height * width - (height + width);
         int walls = (int) ((setWalls(total) / 100) * total);
         total -= walls;
@@ -488,13 +546,18 @@ public class TextGame {
         cave.getWumpus().setLives(setWumpusLives()); // Set the number of lives the Wumpus has
     }
 
+    /**
+     * Gets input for the players name. Entering AI will make the AI play the game
+     * @return the player's name
+     */
     public String setName() {
         System.out.println("Please enter player name");
         String name = scanner.nextLine();
+        // If there is no name after for new input
         if (name.length() < 1) {
             return setName();
         }
-        // Detect if the player wants the ai to play
+        // If the player is called 'AI' let the AI play
         if(name.equalsIgnoreCase("ai")){
             ai = true;
             name = "@";
@@ -502,6 +565,11 @@ public class TextGame {
         return name;
     }
 
+    /**
+     * Gets input for the height/width of the cave
+     * @param height - boolean for whether the input is for width or height
+     * @return the inputted integer
+     */
     public int setDimensions(boolean height) {
         if (height) {
             System.out.println("Please enter the height of the cave");
@@ -530,6 +598,10 @@ public class TextGame {
         return dimension;
     }
 
+    /**
+     * Gets user input for the number or arrows the player should have
+     * @return the number of arrows the player has inputted
+     */
     public int setArrows() {
         System.out.println("Please enter the number of arrows the player should have");
         String number = scanner.nextLine();
@@ -554,18 +626,10 @@ public class TextGame {
         return arrows;
     }
 
-    public boolean setWumpus() {
-        System.out.println("Do you want to be required to kill the wumpus (Y-N)?");
-        String answer = scanner.nextLine().toLowerCase();
-        if (answer.equals("y")) {
-            return true;
-        }
-        if (answer.equals("n")) {
-            return false;
-        }
-        return setWumpus();
-    }
-
+    /**
+     * Gets user input for the number of lives the wumpus should have
+     * @return the number of lives inputted by the user
+     */
     public int setWumpusLives() {
         System.out.println("How many lives do you want the wumpus to have?");
         String number = scanner.nextLine();
@@ -587,7 +651,14 @@ public class TextGame {
         return lives;
     }
 
+    /**
+     * Gets user input for the number of superbats/bottomless pits in the cave
+     * @param pits - boolean for whether the input is for the number of bats or pits
+     * @param total - how many empty rooms in the cave there is
+     * @return the inputted number of pits
+     */
     public int setLayout(boolean pits, int total) {
+        // If there is no free space default to 0
         if (total == 0) {
             return 0;
         }
@@ -610,7 +681,7 @@ public class TextGame {
             return layout;
         }
 
-        // Check it is in the desired range [1, infinity]
+        // Check it is in the desired range [1, total free space]
         if (layout < 0 || layout > total) {
             layout = setLayout(pits, total);
             return layout;
@@ -619,6 +690,11 @@ public class TextGame {
         return layout;
     }
 
+    /**
+     * Gets user input for the percentage of the board that should be walls
+     * @param total - the total amount of free space in the cave
+     * @return the percentage of the board that should be walls, inputted by the user
+     */
     public double setWalls(int total) {
         System.out.println("Please enter the percent of walls you would like");
         System.out.println("You have " + total + " free spaces available.");
@@ -632,7 +708,7 @@ public class TextGame {
             layout = setWalls(total);
             return layout;
         }
-        // Check it is in the desired range [1, infinity]
+        // Check it is in the desired range [1, 100]
         if (layout < 0 || layout > 100) {
             layout = setWalls(total);
             return layout;
@@ -640,7 +716,13 @@ public class TextGame {
         return layout;
     }
 
+    /**
+     * Gets user input for the number of artefacts there should be in the cave
+     * @param total - the total number of free rooms in the cave
+     * @return the number of artefacts inputted by the user
+     */
     public int setArtifacts(int total) {
+        // If there is no free space default to 0
         if (total == 0) {
             return 0;
         }
@@ -656,7 +738,7 @@ public class TextGame {
             layout = setArtifacts(total);
             return layout;
         }
-        // Check it is in the desired range [1, infinity]
+        // Check it is in the desired range [1, total free space]
         if (layout < 0 || layout > total) {
             layout = setArtifacts(total);
             return layout;
@@ -665,28 +747,45 @@ public class TextGame {
         return layout;
     }
 
+    /**
+     * Prints a message for if the wumpus is nearby
+     */
     public void printWumpus() {
         System.out.println("You smell the wumpus");
     }
 
+    /**
+     * Prints a message for if a pit is nearby
+     */
     public void printPit() {
         System.out.println("You feel a breeze");
     }
 
+    /**
+     * Prints a message for if the treasure is nearby
+     */
     public void printTreasure() {
         System.out.println("You see a shiny glitteringness");
     }
 
+    /**
+     * Prints a message telling the player what room they are in
+     * @param roomNumber - the room the player is in
+     */
     public void printRoom(int roomNumber) {
         System.out.println("You are in room " + roomNumber);
     }
 
-    // Version of the print neighbours method that takes into account where the
-    // walls are <- needs hella work
+   
+    /**
+     * Prints the direction in which the player can move
+     * @param nsew - the valid directions that do not have walls
+     */
     public void printNeighbours(String nsew) {
         StringBuilder builder = new StringBuilder();
         builder.append("Tunnels lead to the ");
         ArrayList<String> words = new ArrayList<>();
+        // If a direction is valid then add it to the arrayList
         if (nsew.contains("N")) {
             words.add("north");
         }
@@ -709,63 +808,111 @@ public class TextGame {
         System.out.println(builder);
     }
 
-    // Messages to print when the player losses the game
+    /**
+     * Prints message for falling in a pit
+     */
     public void printPitLoss() {
         System.out.println("You have fallen in a bottomless pit and cannot escape");
     }
 
+    /**
+     * Prints message for getting killed by the wumpus
+     */
     public void printWumpusLoss() {
         System.out.println("The wumpus has found you");
     }
 
+    /**
+     * Prints message for hitting the wumpus with an arrow
+     */
     public void printWumpusKill() {
         System.out.println("You hear a terrible cry. You're arrow must have hit the wumpus");
     }
 
+    /**
+     * Prints message for winning the game
+     */
     public void printVictory() {
         System.out.println("You have found the treasure and escaped the cave");
         System.out.println("Congratulations on winning the game");
     }
 
+    /**
+     * Prints message for getting picked up by a bat
+     */
     public void printBat() {
         System.out.println("A superbat has picked you up");
     }
 
+    /**
+     * Prints message for finding the treasure
+     */
     public void printTreasureFound() {
         System.out.println("You have found the treasure");
     }
 
+    /**
+     * Prints message for failing to hit the wumpus with an arrow
+     */
     public void printWumpusMiss() {
         System.out.println("You hear the sound of an arrow hitting stone");
     }
 
+    /**
+     * Prints message for when the player has run out of arrows
+     */
     public void printNoArrows() {
         System.out.println("You have run out of arrows");
     }
 
-    public void printArrows(Player player) {
-        System.out.println("You have " + player.getNumOfArrows() + " arrows");
+    /**
+     * Prints the number of arrows the player has
+     */
+    public void printArrows() {
+        System.out.println("You have " + cave.getPlayer().getNumOfArrows() + " arrows");
     }
 
+    /**
+     * Prints the number of lives the wumpus has
+     */
     public void printWumpusLives() {
         int lives = cave.getWumpus().getLives();
         if (lives == 0) {
             System.out.println("That last cry was particularly pained. The wumpus must be dead now");
+        } else if(lives == 1){
+            System.out.println("By the sounds of things the wumpus can only take 1 more arrow");
         } else {
             System.out.println("By the sounds of things the wumpus can only take " + lives + " more arrows");
         }
     }
 
+    /**
+     * Prints message about the player using their shield to defend an attack from the wumpus
+     */
     public void printShieldUse() {
         System.out.println("You managed to narrowly survive a run in with the wumpus but your shield is now broken");
     }
 
+    /**
+     * Prints message about finding an artefact
+     * @param artefact - the artefact that was found
+     */
     public void printFoundArtefact(Artifact artefact) {
         System.out.println("You see something inside the cave");
         System.out.println(artefact.getAbility());
     }
 
+    /**
+     * Prints message about finding the exit
+     */
     public void printExit(){
         System.out.println("You see a big door in the cave. It looks like it needs a key to be opened, maybe there is one with the treasure");
+    }
+
+    /**
+     * Prints message about losing the game
+     */
+    public void printLoss(){
+        System.out.println("You lost the game. Better luck next time");
     }
 }

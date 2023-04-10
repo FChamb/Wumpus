@@ -2,57 +2,82 @@ package game;
 
 import java.util.*;
 
-public class AI{
-    // Attributes to store all the information about a round that the game is providing
+public class AI {
+    // Attributes to store all the information about a round that the game is
+    // providing
     private int roomNumber;
     private boolean[] surroundings;
     private String nsew;
-    private int wumpusLives;
 
     // Attributes that the logic operates around
     private HashMap<Integer, int[]> roomNumbers;
     private HashMap<Integer, Boolean> wumpus = new HashMap<>();
     private HashMap<Integer, Boolean> pits = new HashMap<>();
     private HashMap<Integer, Boolean> treasure = new HashMap<>();
-    private ArrayList<Integer> bats = new ArrayList<>(); // List of rooms that contain super bats so they can be avoided
+    private ArrayList<Integer> bats = new ArrayList<>();
     private int caveRows;
     private int caveColumns;
     private ArrayList<Integer> previousRooms = new ArrayList<>();
     private ArrayList<String> previousMoves = new ArrayList<>();
     private int[] wumpusLocation = null;
     private int[] exitLocation = null;
-    // Counter to stop it from trying to select a random number forever if it is not possible for it to be unique
+    // Counter to stop it from trying to select a random number forever
     private int randomCount = 0;
-    // Counters to work out when the player is blind/blocked nose so the ai can ask accordingly
+    // Counters to work out when the player is blind/unable to smell
     private int blind = 0;
     private int blockedNose = 0;
+    // Booleans for different game modes
     private boolean treasureMode = false;
     private boolean shooting = false;
     private boolean shot = false;
     private boolean beenNearTreasure = false;
     private boolean beenNearWumpus = false;
     private boolean exitMode = false;
-    
-    // Create a player object that is called 'AI'
-    public AI(int caveRows, int caveColumns){
-        //previousRooms = new ArrayList<>();
+
+    /**
+     * Constructor that takes the size of the cave the AI is navigating
+     * 
+     * @param caveRows    - number of rows in the associated cave
+     * @param caveColumns - number of columns in the associated cave
+     */
+    public AI(int caveRows, int caveColumns) {
         this.caveRows = caveRows;
         this.caveColumns = caveColumns;
         setUpNumbers();
     }
 
-    // Method to get the information about a specific round:
-    public void setInfo(int roomNumber, boolean[] surroundings, String nsew, int wumpusLives){
+    /**
+     * Sets up the hashMap of room numbers and their corresponding coordinates on
+     * the board
+     */
+    public void setUpNumbers() {
+        roomNumbers = new HashMap<>();
+        for (int i = 0; i < caveRows; i++) {
+            for (int j = 0; j < caveColumns; j++) {
+                roomNumbers.put(caveColumns * i + j + 1, new int[] { i, j });
+            }
+        }
+    }
+
+    /**
+     * Updates the info about the cave and the players surroundings so the AI can
+     * make well informed choices
+     * 
+     * @param roomNumber   - the number of the room the player is currently in
+     * @param surroundings - booleans to tell the AI about the players surroundings
+     *                     in the cave
+     * @param nsew         - the possible directions the player can move in
+     */
+    public void setInfo(int roomNumber, boolean[] surroundings, String nsew) {
         this.roomNumber = roomNumber;
         this.surroundings = surroundings;
         this.nsew = nsew;
-        this.wumpusLives = wumpusLives;
 
-        // add the room number to the list of rooms the player has been to
+        // Add the room number to the list of rooms the player has been to
         previousRooms.add(roomNumber);
-        randomCount = 0; // reset the number of random numbers generated to 0 at the start of every round
+        randomCount = 0; // Reset the number of random numbers generated to 0
 
-        // Check senses before updating maps
+        // Check senses and update maps of the cave
         checkBlind();
         checkNose();
         checkBats();
@@ -60,272 +85,369 @@ public class AI{
         updateInfo();
     }
 
-    public void updateInfo(){
-        // update information about the location of things at the start of every round
-        int[] coords = roomNumbers.get(roomNumber);
-        wumpus.put(roomNumber, false); // Make the current cell safe (if this info is wrong the game is already lost so who cares)
+    /**
+     * Updates all the maps about the layout of the cave with the new information
+     */
+    public void updateInfo() {
+        wumpus.put(roomNumber, false); // Make the current cell safe
+
         // Only update info about the wumpus when able to smell
-        if(blockedNose < 1){
-            find(wumpus, coords[0], coords[1], surroundings[0], beenNearWumpus);
+        if (blockedNose < 1) {
+            find(wumpus, surroundings[0], beenNearWumpus);
             checkWumpusMap();
-            //System.out.println(wumpus);
+
         }
+
         // Only update info about the treasure when not blind
-        if(blind < 1){
-            find(treasure, coords[0], coords[1], surroundings[2], beenNearTreasure);
+        if (blind < 1) {
+            find(treasure, surroundings[2], beenNearTreasure);
             checkTreasureMap();
-            //System.out.println(treasure);
+
         }
-        if(!surroundings[6]){ // if the player has not found the treasure then the current room is false
+        if (!surroundings[6]) { // If the player has not found the treasure then the current room is false
             treasure.put(roomNumber, false);
         }
-        find(pits, coords[0], coords[1], surroundings[1], false);
+        // Update information about pits
+        find(pits, surroundings[1], false);
         pits.put(roomNumber, false);
 
         // Enter treasure finding mode if near the treasure
-        if(surroundings[2]){
+        if (surroundings[2]) {
             treasureMode = true;
         }
         // Leave treasure finding mode after finding the treasure
-        if(surroundings[6]){
+        if (surroundings[6]) {
             treasureMode = false;
-            if(exitLocation != null){
+            if (exitLocation != null) {
                 exitMode = true;
             }
             // could try reseting knowledge of the board otherwise
         }
-        if(surroundings[7]){
+        // Set the exit location if on the exit
+        if (surroundings[7]) {
             exitLocation = roomNumbers.get(roomNumber);
         }
     }
 
-    // Method to check the success of shooting
-    public void checkShot(){
-        if(shot){
-            clearWumpus();
+    /**
+     * Checks if the player shot last round and updates values accordingly
+     */
+    public void checkShot() {
+        if (shot) {
+            wumpus.clear();
             wumpusLocation = null;
             shot = false;
             beenNearWumpus = false;
         }
     }
 
-    // basic make move method to test that the player actually interacts with the game
-    public String makeMove(){
+    /**
+     * Decides whether the player is going to move or shoot depednding on whether
+     * the player is near the wumpus
+     * 
+     * @return the players intended move as a string
+     */
+    public String makeMove() {
         // Shoot if the wumpus is guaranteed to be in an adjacent room
-        if(getWumpusAdjacent() && !shot){
+        if (getWumpusAdjacent() && !shot) {
             shooting = true;
             System.out.println("S");
             return "S";
         }
+        // If not next to the wumpus then move
         System.out.println("M");
         return "M";
     }
 
-
-    public String chooseDirection(){
+    /**
+     * Decides what direction the player is to move/shoot in depending on the
+     * different possible strategies
+     * 
+     * @return the direction the player is to move/shoot in as a string
+     */
+    public String chooseDirection() {
         String move;
-        if(shooting){
+        // Shoot the wumpus if next to it
+        if (shooting) {
             move = shootWumpus();
             System.out.println(move);
             shooting = false;
             shot = true;
             return move;
         }
-        String safeMoves = getSafeMoves(nsew);
-        // If unable to smell or see then walk back and forth for 5 moves
-        if(blind > 0 || blockedNose > 0){
-            move = moveBackwards();
-        }
-        else if(checkPreviousMoves()) {
-            move = chooseRandom(nsew);
-        }
-        else if(treasureMode){
-            System.out.println("It is in treasure mode");
-            move = moveToTreasure(safeMoves);
-        }
-        else if(exitMode){
-            System.out.println("It is in exit mode");
-            move = moveTowards(exitLocation, safeMoves);
-        }
-        else{
-            move = chooseRandom(safeMoves);
-        }
+
+        String safeMoves = getSafeMoves();
+
+        /*
+         * if(blind > 0 || blockedNose > 0){ // If unable to smell or see then walk back
+         * and forth
+         * move = moveBackwards();
+         * }
+         * else if(checkPreviousMoves()) { // If walking in back and forth, get a random
+         * move
+         * move = chooseRandom(nsew);
+         * }
+         * else if(treasureMode){ // If near the treasure move towards it
+         * System.out.println("It is in treasure mode");
+         * move = moveToTreasure(safeMoves);
+         * }
+         * else if(exitMode){ // If found the treasure and exit, move towards the exit
+         * System.out.println("It is in exit mode");
+         * move = moveTowards(exitLocation, safeMoves);
+         * }
+         * else{ // If nothing has been found, move randomly
+         * move = chooseRandom(safeMoves);
+         * }
+         */
+        move = getMove(safeMoves);
+        // Keep track of the moves
         previousMoves.add(move);
         // Count down how long the ai has been blind for
         blind--;
         blockedNose--;
-        System.out.println(move); // print the move to make it look like the AI typed it out
+        System.out.println(move); // print the move
         return move;
     }
 
-    // Method to get a random location for the list of safe moves
-    public String chooseRandom(String safeMoves){
-        randomCount++; // everytime the method is called it should increase the number of random numbers it generates
+    /**
+     * Gets the direction the player is going to move in based on the current
+     * in-game conditions
+     * 
+     * @param safeMoves - all the safe locations around the player
+     * @return the desired move as a string
+     */
+    public String getMove(String safeMoves) {
+        String move;
+
+        if (blind > 0 || blockedNose > 0) { // If unable to smell or see then walk back and forth
+            move = moveBackwards();
+        } else if (checkPreviousMoves()) { // If walking in back and forth, get a random move
+            move = chooseRandom(nsew);
+        } else if (treasureMode) { // If near the treasure move towards it
+            System.out.println("It is in treasure mode");
+            move = moveToTreasure(safeMoves);
+        } else if (exitMode) { // If found the treasure and exit, move towards the exit
+            System.out.println("It is in exit mode");
+            move = moveTowards(exitLocation, safeMoves);
+        } else { // If nothing has been found, move randomly
+            move = chooseRandom(safeMoves);
+        }
+
+        return move;
+    }
+
+    /**
+     * Gets a random move for the player
+     * 
+     * @param safeMoves - all the possible safe moves for the player to make
+     * @return a random direction as a string
+     */
+    public String chooseRandom(String safeMoves) {
+        randomCount++; // Count the number of random numbers generated this round
         Random random = new Random();
         int index = random.nextInt(safeMoves.split("-").length);
         String direction = safeMoves.split("-")[index];
 
-        // Get another move if it is not unique (but stop after 10 times)
-        if(!checkUnique(getRoomMove(direction)) && randomCount < 10){    
+        // Get another move if it is not unique (only do this 10 times)
+        if (!checkUnique(getRoomMove(direction)) && randomCount < 10) {
             direction = chooseRandom(safeMoves);
         }
         return direction;
     }
 
-    // Method to get coordinates from the room number (allows all the code to revolve around using room numbers)
-    public void setUpNumbers(){
-        roomNumbers = new HashMap<>();
-        for(int i = 0; i < caveRows; i++){
-            for(int j = 0; j < caveColumns; j++){
-                roomNumbers.put(caveColumns*i + j + 1, new int[]{i, j});
-            }
-        }
-    }
-
-    public String getSafeMoves(String nsew){
+    /**
+     * Gets all of the safe moves from the current position in the cave
+     * 
+     * @return a string containing all the safe moves
+     */
+    public String getSafeMoves() {
         String[] part = nsew.split("-");
-        HashMap<Integer, String> safeMoves = new HashMap<>();
         StringBuilder builder = new StringBuilder();
-        // only take the ones that are safe
-        for(int i = 0; i < part.length; i++){
-            if(checkSafe(getRoomMove(part[i]))){
+        // Store any rooms that are safe
+        for (int i = 0; i < part.length; i++) {
+            if (checkSafe(getRoomMove(part[i]))) {
                 builder.append(part[i] + "-");
-                safeMoves.put(getRoomMove(part[i]), part[i]);
             }
         }
-        if(safeMoves.size() == 0){
-            return nsew; // if there are no safe moves then just move randomly
+        // If there are no safe rooms then return all the moves
+        if (builder.toString().isEmpty()) {
+            return nsew;
         }
 
-        return builder.toString().substring(0, builder.toString().length()-1);
+        return builder.toString().substring(0, builder.toString().length() - 1);
     }
 
-    // Method to get the room associated with each move
-    public int getRoomMove(String move){
+    /**
+     * Gets the number of the room that the player will end up in after moving in
+     * the given direction
+     * 
+     * @param move - the direction being moved in
+     * @return the room that direction moves the player to
+     */
+    public int getRoomMove(String move) {
         int[] coords = roomNumbers.get(roomNumber);
         int[] roomCoords = new int[2];
-        if(move.equalsIgnoreCase("N")){
-            roomCoords = new int[]{validateRow(coords[0] - 1), coords[1]};
+        if (move.equalsIgnoreCase("N")) {
+            roomCoords = new int[] { validateRow(coords[0] - 1), coords[1] };
         }
-        if(move.equalsIgnoreCase("S")){
-            roomCoords = new int[]{validateRow(coords[0] + 1), coords[1]};
+        if (move.equalsIgnoreCase("S")) {
+            roomCoords = new int[] { validateRow(coords[0] + 1), coords[1] };
         }
-        if(move.equalsIgnoreCase("E")){
-            roomCoords = new int[]{coords[0], validateColumn(coords[1] + 1)};
+        if (move.equalsIgnoreCase("E")) {
+            roomCoords = new int[] { coords[0], validateColumn(coords[1] + 1) };
         }
-        if(move.equalsIgnoreCase("W")){
-            roomCoords = new int[]{coords[0], validateColumn(coords[1] - 1)};
+        if (move.equalsIgnoreCase("W")) {
+            roomCoords = new int[] { coords[0], validateColumn(coords[1] - 1) };
         }
         // Return the room number of the requested room
-        return roomCoords[0]*caveRows + roomCoords[1] + 1;
+        return roomCoords[0] * caveRows + roomCoords[1] + 1;
     }
 
-    // Method to check if the AI has been in a room previously
-    public boolean checkUnique(int roomNumber){
-        for(int i = 0; i < previousRooms.size(); i++){
-            // if the Ai has already been in a certain room
-            if(previousRooms.get(i) == roomNumber){
+    /**
+     * Checks if the player has already been in a room
+     * 
+     * @param roomNumber - the number of the room being checked
+     * @return whether the player has been in a room previously
+     */
+    public boolean checkUnique(int roomNumber) {
+        for (int i = 0; i < previousRooms.size(); i++) {
+            // Look for the given room in the arrayList of previous rooms
+            if (previousRooms.get(i) == roomNumber) {
                 return false;
             }
         }
         return true;
     }
 
-    // Method to check if the square is safe (true if safe, false if not)
-    public boolean checkSafe(int roomNumber){
+    /**
+     * Checks if a given room is safe
+     * 
+     * @param roomNumber - the number of the room being checked
+     * @return whether the given room is safe
+     */
+    public boolean checkSafe(int roomNumber) {
         // If the room contains a bat return false
-        if(bats.contains(roomNumber)){
+        if (bats.contains(roomNumber)) {
             return false;
         }
-        if(wumpus.containsKey(roomNumber) && pits.containsKey(roomNumber)){
-            return !(wumpus.get(roomNumber) || pits.get(roomNumber)); // if either of them are true will return false (not safe)
+        if (wumpus.containsKey(roomNumber) && pits.containsKey(roomNumber)) {
+            // If there is either a wumpus or a pit return false
+            return !(wumpus.get(roomNumber) || pits.get(roomNumber));
         }
-        // in theory it should not be possible to only be in one map and not the other so i dont need any more checks
+        // If there isnt a wumpus, bat or pit then return true
         return true;
     }
 
-    // Method to check the wumpus map to see if the wumpus' location has been pinpointed
-    public void checkWumpusMap(){
+    /**
+     * Checks if the wumpus' location has been pinpointed
+     */
+    public void checkWumpusMap() {
         ArrayList<Integer> roomNumbers = new ArrayList<>();
-        for(int name : wumpus.keySet()){
-            if(wumpus.get(name)){
+        // Looks for all the possible rooms the wumpus could be in
+        for (int name : wumpus.keySet()) {
+            if (wumpus.get(name)) {
                 roomNumbers.add(name);
             }
         }
-        if(roomNumbers.size() > 0){
+        // If there is more than 0 then the player has been near the wumpus
+        if (roomNumbers.size() > 0) {
             beenNearWumpus = true;
         }
-        // as per the explanation above if there is only one safe square then that square contains the wumpus
-        if(roomNumbers.size() == 1){
+        // If there is exactly one then set that as the location of the wumpus
+        if (roomNumbers.size() == 1) {
             wumpusLocation = this.roomNumbers.get(roomNumbers.get(0));
         }
     }
 
-    // General method for finding something
-    public void find(HashMap<Integer, Boolean> map, int row, int column, boolean near, boolean beenNear){
+    /**
+     * Updates the players surroundings in the given map
+     * 
+     * @param map      - the map being updated
+     * @param near     - whether the player is near the entity being tracked in the
+     *                 map
+     * @param beenNear - whether the player has been near entities of that type
+     *                 before
+     */
+    public void find(HashMap<Integer, Boolean> map, boolean near, boolean beenNear) {
+        // Get the players positions
+        int[] coords = roomNumbers.get(roomNumber);
         ArrayList<Integer> newTrue = new ArrayList<>();
-        // get all the coordinates of surrounding squares
-        for(int i = -1; i < 2; i++){
-            for(int j = -1; j < 2; j++){
-                // Update whether that cell is safe to walk into (not including middle cell)
-                if(!(i == 0 && j == 0)){
-                    updateMap(map, validateRow(row + i)*caveRows + validateColumn(column + j) + 1, near, beenNear);
-                    // If the player has been next to the things being tracked before then keep a list of all the new possibly true squares
-                    if(beenNear && near){
-                        newTrue.add(validateRow(row + i)*caveRows + validateColumn(column + j) + 1);
+        // Look through all the coordinates surrounding the square
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                // Update whether that cell is safe to walk into
+                if (!(i == 0 && j == 0)) {
+                    updateMap(map, validateRow(coords[0] + i) * caveRows + validateColumn(coords[1] + j) + 1, near,
+                            beenNear);
+                    // If the player has been near the entity before then keep track of all the new
+                    // true rooms
+                    if (beenNear && near) {
+                        newTrue.add(validateRow(coords[0] + i) * caveRows + validateColumn(coords[1] + j) + 1);
                     }
                 }
             }
         }
 
-        if(beenNear && near){
-            // loop through every one of the old true values to see if it is in the new true values and set the ones that are not to be false
+        if (beenNear && near) {
+            // Look for all the old true rooms in the new true rooms
             ArrayList<Integer> oldTrueRooms = getTrue(map);
-            for(int oldTrue : oldTrueRooms){
+            for (int oldTrue : oldTrueRooms) {
                 // If an old true value is not in the new true values then set it to false
-                if(!newTrue.contains(oldTrue)){
+                if (!newTrue.contains(oldTrue)) {
                     map.put(oldTrue, false);
                 }
             }
         }
     }
-    
-    // Method to do something with the map (for wumpus and treasure)
-    // Map needs extra logic that if there are already true values in the map, then anything that is now true is actually false (does not apply to pits)
-    public void updateMap(HashMap<Integer, Boolean> map, int roomNumber, boolean near, boolean beenNear){
-        // Check if the player has already been near the treasure/wumpus (if so discard all new true values)
-        if(beenNear){
-            // If the room is not already in a map that contains true values then it is false
-            if(!map.containsKey(roomNumber)){
+
+    /**
+     * Updates the contents of the given map for the supplied room number
+     * 
+     * @param map        - the map that is being updated
+     * @param roomNumber - number of the room being updated
+     * @param near       - whether the player is near the entity being tracked
+     * @param beenNear   - whather the player has previously been near the entity
+     *                   being tracked
+     */
+    public void updateMap(HashMap<Integer, Boolean> map, int roomNumber, boolean near, boolean beenNear) {
+        // Check if the player has already been near the treasure/wumpus (if so discard
+        // all new true values)
+        if (beenNear) {
+            // If the room is not already in a map that contains true values then it is
+            // false
+            if (!map.containsKey(roomNumber)) {
                 map.put(roomNumber, false);
             }
             // If the room is already in the map and false then return
-            else if (map.containsKey(roomNumber) && !map.get(roomNumber)){
+            else if (map.containsKey(roomNumber) && !map.get(roomNumber)) {
                 return;
             }
             // If it is in the map and true then update the value to be the new value
-            else{
+            else {
                 map.put(roomNumber, near);
             }
             return;
         }
 
-        // If the map does not have any true values
-        if(map.containsKey(roomNumber)){
-            // if it is in the map as a safe cell then leave it as false
-            if(!map.get(roomNumber)){
-                return;
-            }
+        // If the room is false in the map then leave it alone
+        if (map.containsKey(roomNumber) && !map.get(roomNumber)) {
+            return;
         }
-        // otherwise update the map to have the new value
+        // Otherwise add the room and the corresponding value to the map
         map.put(roomNumber, near);
     }
 
-    public ArrayList<Integer> getTrue(HashMap<Integer, Boolean> map){
+    /**
+     * Gets all the rooms with the value true currently in the given map
+     * 
+     * @param map - the given map
+     * @return an arrayList of all the true values
+     */
+    public ArrayList<Integer> getTrue(HashMap<Integer, Boolean> map) {
         ArrayList<Integer> possibleRooms = new ArrayList<>();
-        // If something is currently in the map as true then add it to the list of possible rooms
-        for(int roomNumber : map.keySet()){
-            if(map.get(roomNumber)){
+        // Add rooms with the value true to the arrayList
+        for (int roomNumber : map.keySet()) {
+            if (map.get(roomNumber)) {
                 possibleRooms.add(roomNumber);
             }
         }
@@ -333,71 +455,75 @@ public class AI{
         return possibleRooms;
     }
 
-    // Method to the map for the location of the treasure
-    public void checkTreasureMap(){
-        ArrayList<Integer> roomNumbers = new ArrayList<>();
-        for(int roomNumber : treasure.keySet()){
-            if(treasure.get(roomNumber)){
-                roomNumbers.add(roomNumber);
+    /**
+     * Check if the player has previously been next to the treasure
+     */
+    public void checkTreasureMap() {
+        for (int roomNumber : treasure.keySet()) {
+            if (treasure.get(roomNumber)) {
+                beenNearTreasure = true;
+                return;
             }
         }
-        // as per the explanation above if there is only one safe square then that square contains the wumpus
-        if(roomNumbers.size() > 0){
-            beenNearTreasure = true;
-        }
     }
 
-    // Method to be called after the wumpus has moved (meaning every cell that was previously safe, is back to being unknown)
-    public void clearWumpus(){
-        wumpus.clear();
-    }
-
-    public String moveTowards(int[] coords, String safeMoves){
+    /**
+     * Chooses a move that moves the player towards specific coordinates
+     * 
+     * @param coords    - the coordinates the player is moving towards
+     * @param safeMoves - the current safe moves
+     * @return the optimal move
+     */
+    public String moveTowards(int[] coords, String safeMoves) {
         int[] location = roomNumbers.get(roomNumber);
         System.out.println("Moving towards: " + coords[0] + "   " + coords[1]);
-        // if they are not in the same row
-        if(location[0] != coords[0]){
-            if(location[0] > coords [0]){ // location is further down (right basically)
-                if(Math.abs(location[0] - coords[0]) > (coords[0] + caveRows - location[0])){ // if it is further through the board
-                    if(safeMoves.contains("S")){
+        // If they are not in the same row
+        if (location[0] != coords[0]) {
+            if (location[0] > coords[0]) { // Player is further down
+                // If it is further to travel through the board
+                if (Math.abs(location[0] - coords[0]) > (coords[0] + caveRows - location[0])) {
+                    if (safeMoves.contains("S")) {
                         return "S";
                     }
-                } else{
-                    if(safeMoves.contains("N")){
+                } else {
+                    if (safeMoves.contains("N")) {
                         return "N";
                     }
                 }
-            } else{
-                if(Math.abs(location[0] - coords[0]) > (caveRows - coords[0] + location[0])){ // if it is further through the board
-                    if(safeMoves.contains("N")){
+            } else {
+                // If it is further to travel through the board
+                if (Math.abs(location[0] - coords[0]) > (caveRows - coords[0] + location[0])) {
+                    if (safeMoves.contains("N")) {
                         return "N";
                     }
-                } else{
-                    if(safeMoves.contains("S")){
+                } else {
+                    if (safeMoves.contains("S")) {
                         return "S";
                     }
                 }
             }
         }
-        // if they are not in the same column
-        if(location[1] != coords[1]){
-            if(location[1] > coords [1]){ // location is further right
-                if(Math.abs(location[1] - coords[1]) > (coords[1] + caveColumns - location[1])){ // if it is further through the board
-                    if(safeMoves.contains("E")){
+        // If they are not in the same column
+        if (location[1] != coords[1]) {
+            if (location[1] > coords[1]) { // Player is further right
+                // If it is further to travel through the board
+                if (Math.abs(location[1] - coords[1]) > (coords[1] + caveColumns - location[1])) {
+                    if (safeMoves.contains("E")) {
                         return "E";
                     }
-                } else{
-                    if(safeMoves.contains("W")){
+                } else {
+                    if (safeMoves.contains("W")) {
                         return "W";
                     }
                 }
-            } else{
-                if(Math.abs(location[1] - coords[1]) > (caveColumns - coords[1] + location[1])){ // if it is further through the board
-                    if(safeMoves.contains("W")){
+            } else {
+                // If it is further to travel through the board
+                if (Math.abs(location[1] - coords[1]) > (caveColumns - coords[1] + location[1])) {
+                    if (safeMoves.contains("W")) {
                         return "W";
                     }
-                } else{
-                    if(safeMoves.contains("E")){
+                } else {
+                    if (safeMoves.contains("E")) {
                         return "E";
                     }
                 }
@@ -408,131 +534,183 @@ public class AI{
         return chooseRandom(safeMoves);
     }
 
-    public void checkBats(){
-        if(surroundings[4]){
+    /**
+     * Gets the location of the superbat if the player was picked up by one
+     */
+    public void checkBats() {
+        if (surroundings[4]) {
             // Get the coords from the second to last room
-            int[] previousCoords = roomNumbers.get(previousRooms.get(previousRooms.size()-2));
-            int[] batCoords = {previousCoords[0], previousCoords[1]};
-            String move = previousMoves.get(previousMoves.size()-1);
-            if(move.equalsIgnoreCase("N")){
-                batCoords[0] = validateRow(previousCoords[0]-1);
+            int[] previousCoords = roomNumbers.get(previousRooms.get(previousRooms.size() - 2));
+            int[] batCoords = { previousCoords[0], previousCoords[1] };
+            String move = previousMoves.get(previousMoves.size() - 1);
+            // Get the coordinates of the room the bat was in beased on the move needed to
+            // get there
+            if (move.equalsIgnoreCase("N")) {
+                batCoords[0] = validateRow(previousCoords[0] - 1);
             }
-            if(move.equalsIgnoreCase("S")){
-                batCoords[0] = validateRow(previousCoords[0]+1);
+            if (move.equalsIgnoreCase("S")) {
+                batCoords[0] = validateRow(previousCoords[0] + 1);
             }
-            if(move.equalsIgnoreCase("E")){
-                batCoords[1] = validateColumn(previousCoords[1]+1);
+            if (move.equalsIgnoreCase("E")) {
+                batCoords[1] = validateColumn(previousCoords[1] + 1);
             }
-            if(move.equalsIgnoreCase("W")){
-                batCoords[1] = validateColumn(previousCoords[1]-1);
+            if (move.equalsIgnoreCase("W")) {
+                batCoords[1] = validateColumn(previousCoords[1] - 1);
             }
 
-            bats.add(batCoords[0]*caveRows + batCoords[1]+1); // add the room where the bat is to the list of rooms containing bats
+            // Add the room to the list of bat rooms
+            bats.add(batCoords[0] * caveRows + batCoords[1] + 1);
         }
     }
 
-    public void checkBlind(){
+    /**
+     * Checks if the player has been made blind
+     */
+    public void checkBlind() {
         // Start counting rounds if the player cannot see
-        if(!surroundings[5]){
+        if (!surroundings[5]) {
             blind = 5;
         }
     }
 
-    public void checkNose(){
+    /**
+     * Checks if the player has lost their sense of smell
+     */
+    public void checkNose() {
         // Start counting rounds if the player cannot smell
-        if(!surroundings[3]){
+        if (!surroundings[3]) {
             blockedNose = 5;
         }
     }
 
-    // Method that controls behaviour when the ai cannot see or smell (just walk back and forward)
-    public String moveBackwards(){
-        // in theory if it literally just makes the reverse of its last move then it will go back
-        String previousMove = previousMoves.get(previousMoves.size()-1);
-        if(previousMove.equalsIgnoreCase("N")){
+    /**
+     * Gets the reverse of the player's last move so they retrace their steps
+     * 
+     * @return the reverse of the previous move
+     */
+    public String moveBackwards() {
+        // Get the previous move
+        String previousMove = previousMoves.get(previousMoves.size() - 1);
+        // Reverse the move
+        if (previousMove.equalsIgnoreCase("N")) {
             return "S";
         }
-        if(previousMove.equalsIgnoreCase("S")){
+        if (previousMove.equalsIgnoreCase("S")) {
             return "N";
         }
-        if(previousMove.equalsIgnoreCase("E")){
+        if (previousMove.equalsIgnoreCase("E")) {
             return "W";
         }
-        if(previousMove.equalsIgnoreCase("W")){
+        if (previousMove.equalsIgnoreCase("W")) {
             return "E";
         }
 
-        // if unable to get previous move then just get random move
-        return chooseRandom(getSafeMoves(nsew));
+        // If unable to get a previous move then just get random move
+        return chooseRandom(getSafeMoves());
     }
 
-    public String moveToTreasure(String safeMoves){
-        // basically going to want to move towards a square that might possibly contain the treasure (but is still safe)
-
+    /**
+     * Gets a move in the direction of the treasure
+     * 
+     * @param safeMoves - the moves that are safe
+     * @return a move in the direction of the treasure
+     */
+    public String moveToTreasure(String safeMoves) {
         // Create a list of all the possible rooms that the treasure could be in
         ArrayList<Integer> possibleRooms = new ArrayList<>();
-        for(int room : treasure.keySet()){
-            if(treasure.get(room)){
+        for (int room : treasure.keySet()) {
+            if (treasure.get(room)) {
                 possibleRooms.add(room);
             }
         }
-        //System.out.println(possibleRooms);
 
-        // Pick a random one to move towards <- this can be improved later
+        // Pick a random one to move towards
         Random random = new Random();
         int index = random.nextInt(possibleRooms.size());
         int[] coords = roomNumbers.get(possibleRooms.get(index));
-        return moveTowards(coords, safeMoves); // get a move in the direction of the rooms where the treasure might be
+        // Get a move in the direction of the random room
+        return moveTowards(coords, safeMoves);
     }
 
-    // Method to work out if the wumpus is in an adjacent room
-    public boolean getWumpusAdjacent(){
+    /**
+     * Gets whether the player is in a room adjacent to the wumpus
+     * 
+     * @return whether the player is next to the wumpus
+     */
+    public boolean getWumpusAdjacent() {
         // If the wumpus has not been found then it is not in an adjacent square
-        if(wumpusLocation == null){
+        if (wumpusLocation == null) {
             return false;
         }
         String[] directions = nsew.split("-");
-        for(int i = 0; i < directions.length; i++){
+        // Check every possible direction
+        for (int i = 0; i < directions.length; i++) {
+            // Get the coords of the rooms in every direction
             int[] coords = roomNumbers.get(getRoomMove(directions[i]));
-            if(coords[0] == wumpusLocation[0] && coords[1] == wumpusLocation[1]){
+            // Check if they contain the wumpus
+            if (coords[0] == wumpusLocation[0] && coords[1] == wumpusLocation[1]) {
                 return true;
             }
         }
         return false;
     }
 
-    public String shootWumpus(){
+    /**
+     * Gets the direction to shoot in to hit the wumpus
+     * 
+     * @return the direction the player should shoot in
+     */
+    public String shootWumpus() {
         String[] directions = nsew.split("-");
-        for(int i = 0; i < directions.length; i++){
+        // Get the direction that the wumpus is in
+        for (int i = 0; i < directions.length; i++) {
             int[] coords = roomNumbers.get(getRoomMove(directions[i]));
-            if(coords[0] == wumpusLocation[0] && coords[1] == wumpusLocation[1]){
+            if (coords[0] == wumpusLocation[0] && coords[1] == wumpusLocation[1]) {
                 return directions[i];
             }
         }
-        // should never reach this because method is always called after establishing the wumpus is in an adjacent room
-        return chooseRandom(nsew); // if wumpus is not there then shoot in a random direction
+        // Should never reach this because method is always called after establishing
+        // the wumpus is in an adjacent room
+        return chooseRandom(nsew); // If wumpus is not there then shoot in a random direction
     }
 
-    public int validateRow(int row){
-        if(row < 0){
-            row = caveRows-1;
+    /**
+     * Makes the row values toroidal
+     * 
+     * @param row - the row value
+     * @return the validated row value
+     */
+    public int validateRow(int row) {
+        if (row < 0) {
+            row = caveRows - 1;
         }
-        if(row >= caveRows){
+        if (row >= caveRows) {
             row = 0;
         }
         return row;
     }
 
-    public int validateColumn(int column){
-        if(column < 0){
-            column = caveColumns-1;
+    /**
+     * Makes the column values toroidal
+     * 
+     * @param column - the column value
+     * @return the validated column value
+     */
+    public int validateColumn(int column) {
+        if (column < 0) {
+            column = caveColumns - 1;
         }
-        if(column >= caveColumns){
+        if (column >= caveColumns) {
             column = 0;
         }
         return column;
     }
 
+    /**
+     * Checks whether the player is stuck in an endless loop of repeating moves
+     * 
+     * @return whether the player has been repeating the same two moves
+     */
     public boolean checkPreviousMoves() {
         if (previousRooms.size() < 10) {
             return false;
