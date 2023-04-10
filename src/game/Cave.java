@@ -56,6 +56,7 @@ public class Cave {
     }
 
     public void createPath() {
+        ArrayList<String> path = new ArrayList<>();
         int[] start = getRandom();
         this.validRooms.remove(start[0] + "x" + start[1]);
         int length = this.xSize + this.ySize;
@@ -67,14 +68,6 @@ public class Cave {
             }
             int x = start[0];
             int y = start[1];
-            if (i == 1) {
-                this.cave[start[0]][start[1]].setPlayerInRoom(true);
-                this.player.setCoords(start[0], start[1]);
-            } else if (i == length) {
-                this.cave[x][y] = new Room( "X");
-            } else if (i == length / 2) {
-                this.cave[x][y] = new Room("G");
-            }
             switch (nextRoom) {
                 case 0:
                     lastRoom = 1;
@@ -109,9 +102,24 @@ public class Cave {
                     }
                     break;
             }
+            if (path.contains(x + "x" + y)) {
+                i--;
+                continue;
+            }
+            path.add(x + "x" + y);
             this.validRooms.remove(x + "x" + y);
             start = new int[]{x, y};
         }
+        int x = Integer.parseInt(path.get(0).split("x")[0]);
+        int y = Integer.parseInt(path.get(0).split("x")[1]);
+        this.player.setCoords(x, y);
+        x = Integer.parseInt(path.get(path.size() / 2).split("x")[0]);
+        y = Integer.parseInt(path.get(path.size() / 2).split("x")[1]);
+        this.cave[x][y] = new Room( "G");
+        x = Integer.parseInt(path.get(path.size() - 1).split("x")[0]);
+        y = Integer.parseInt(path.get(path.size() - 1).split("x")[1]);
+        this.cave[x][y] = new Room("X");
+        System.out.println(x + " " + y);
     }
 
     public void generateObstacles() {
@@ -145,7 +153,6 @@ public class Cave {
                     }
                 case 2:
                     if (wumpus) {
-                        this.cave[x][y].setWumpusInRoom(true);
                         this.wumpus.setCoords(x, y);
                         wumpus = false;
                         total--;
@@ -181,14 +188,14 @@ public class Cave {
 
     public String toString() {
         String output = "\n";
-        for (Room[] row : this.cave) {
-            for (Room col : row) {
-                if (col.getPlayerInRoom()) {
+        for (int i = 0; i < this.cave.length; i++) {
+            for (int j = 0; j < this.cave[0].length; j++) {
+                if (this.player.getCoords()[0] == i && this.player.getCoords()[1] == j) {
                     output += this.player.toString();
-                } else if (col.getWumpusInRoom()) {
+                } else if (this.wumpus.getCoords()[0] == i && this.wumpus.getCoords()[1] == j) {
                     output += this.wumpus.toString();
                 } else {
-                    output += col.toString();
+                    output += this.cave[i][j].toString();
                 }
             }
             output += "\n";
@@ -198,7 +205,7 @@ public class Cave {
 
     public static void main(String[] args) {
         Player test = new Player("Finnegan");
-        Cave cave = new Cave(6, 6, 8, 2, 5, 2, test);
+        Cave cave = new Cave(10, 10, 15, 5, 32, 5, test);
         System.out.println(cave);
     }
 }

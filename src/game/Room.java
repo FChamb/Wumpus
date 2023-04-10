@@ -8,11 +8,9 @@ public class Room {
      * "w" super bat room - carries the player to a random location
      * "G" treasure room - pt 1 of winning
      * "X" exit - pt 2 of winning
-     * "#" wall
+     * " " wall
      */
     private final String Type;
-    private boolean playerInRoom = false;
-    private boolean wumpusInRoom = false;
     private Artifact artifact = null;
 
     public Room() {
@@ -31,18 +29,6 @@ public class Room {
     public String getType() {
         return this.Type;
     }
-
-    public boolean getPlayerInRoom() {
-        return this.playerInRoom;
-    }
-
-    public void setPlayerInRoom(boolean playerInRoom) {
-        this.playerInRoom = playerInRoom;
-    }
-
-    public boolean getWumpusInRoom() { return this.wumpusInRoom; }
-
-    public void setWumpusInRoom(boolean wumpusInRoom) { this.wumpusInRoom = wumpusInRoom; }
 
     public Artifact getArtifact() {
         return this.artifact;
