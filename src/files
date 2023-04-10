@@ -8,7 +8,9 @@
 ./game/TextGame.java
 ./game/Room.java
 ./game/AI.java
+./game/Command.java
 ./scenes/SceneManager.java
 ./scenes/QuitScene.java
+./scenes/GameScene.java
 ./scenes/MenuScene.java
 ./scenes/Scene.java

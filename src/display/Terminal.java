@@ -37,6 +37,8 @@ public class Terminal {
             else                        System.out.print("\033[2m");
             if(((style >> 2) & 1) == 1) System.out.print("\033[4m" );
             else                        System.out.print("\033[24m");
+            if(((style >> 3) & 1) == 1) System.out.print("\033[5m" );
+            else                        System.out.print("\033[25m");
 
             setColours();
         }
@@ -53,6 +55,11 @@ public class Terminal {
         public void setUnderline(boolean state) {
             if(state) style |=  4;
             else      style &= ~4;
+            applyStyle();
+        }
+        public void setBlinking(boolean state) {
+            if(state) style |=  8;
+            else      style &= ~8;
             applyStyle();
         }
 

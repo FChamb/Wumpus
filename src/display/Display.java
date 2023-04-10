@@ -1,5 +1,7 @@
 package display;
 
+import game.Command;
+
 public class Display {
 
     private static final String titleBlock = """
@@ -37,14 +39,14 @@ public class Display {
 
         cursor.move(90, 20); cursor.setForegroundColour(0, 0, 0); cursor.setBackgroundColour(0, 191,  63);
         terminal.print("N");
-        
+
         cursor.swapColours();
         terminal.print("ew Game");
 
         cursor.move(110, 20);
         cursor.setForegroundColour(0, 0, 0); cursor.setBackgroundColour(191, 0, 0);
         terminal.print("Q");
-        
+
         cursor.swapColours();
         terminal.print("uit Game");
 
@@ -52,29 +54,26 @@ public class Display {
         cursor.move(101, 24);
         cursor.setForegroundColour(255, 255, 255); cursor.setBold(false);
         terminal.print(": ");
-        
+    }
+    public void setTitleCursor() {
+        cursor.resetStyle();
+
+        cursor.move(103, 24);
+
         cursor.setUnderline(true);
+        cursor.setForegroundColour(255, 255, 255); cursor.setBold(false);
         terminal.print(" ");
         
         cursor.move(103, 24);
         cursor.setVisible(true);
     }
 
-    public void inputError() {
+
+    public void printGameInput(int x, int y) {
         cursor.resetStyle();
 
-        cursor.move(98, 30);
-        cursor.setForegroundColour(127, 0, 0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(true);
-        terminal.print("Input Error");
-
-        printTitleScreen();
-    }
-
-
-    public void printGameScreen() {
-        cursor.resetStyle();
-
-        cursor.move(58, 30);
+        cursor.move(x  , y);
+        // cursor.move(58, 30);
         cursor.setForegroundColour(191, 127,   0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(true);
         terminal.print("Enter Command ");
         
@@ -82,36 +81,26 @@ public class Display {
         terminal.print("[  or   for help]");
 
         cursor.swapColours(); cursor.setBold(true);
-        cursor.shift(-16, 0); terminal.print("H");
+        cursor.shift(-16, 0); terminal.print("h");
         cursor.shift(  4, 0); terminal.print("?");
 
         cursor.shift(12, 0);
         cursor.setForegroundColour(255, 255, 255); cursor.setBackgroundColour(0, 0, 0);
         terminal.print(": ");
-
-        cursor.setUnderline(true);
-        terminal.print("          ");
-
-        cursor.move(93, 30);
-        cursor.setVisible(true);
     }
-
-    public void printHelp() {
+    public void setGameCursor(int x, int y) {
         cursor.resetStyle();
 
-        cursor.move(65, 40);
-        cursor.setForegroundColour(0, 0, 0); cursor.setBackgroundColour(191, 127, 127); cursor.setBold(true);
-        terminal.printFixed("help\n\n  H\n\n  ?\n\nquit\n\n  Q");
+        cursor.move(x, y);
+        // cursor.move(93, 30);
 
-        cursor.swapColours(); cursor.setBold(false);
-        cursor.move(74, 40);
-        terminal.print("--"); cursor.shift(5, 0); terminal.print("Display information about each command.");
-        cursor.move(74, 46);
-        terminal.print("--"); cursor.shift(5, 0); terminal.print("Return to the main menu.");
+        cursor.setUnderline(true);
+        cursor.setForegroundColour(255, 255, 255); cursor.setBackgroundColour(0, 0, 0);
+        terminal.print("          ");
 
-        cursor.move(65, 41);
-        cursor.setForegroundColour(191, 127, 0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(false);
-        terminal.printFixed("│\n├─\n│\n└─\n\n\n│\n└─");
+        cursor.move(x, y);
+        // cursor.move(93, 30);
+        cursor.setVisible(true);
     }
 
 
@@ -126,20 +115,53 @@ public class Display {
         cursor.setBold(true);
         terminal.print("[ / ] : ");
 
-        cursor.setBold(false); cursor.setUnderline(true);
-        terminal.print(" ");
-
-        cursor.shift(-8, 0);
+        cursor.shift(-7, 0);
         cursor.setForegroundColour(0, 0, 0); cursor.setBackgroundColour(0, 191, 63); cursor.setBold(false); cursor.setUnderline(false);
         terminal.print("Y");
 
         cursor.shift(1, 0);
         cursor.setBackgroundColour(191, 0, 0);
         terminal.print("N");
+    }
+    public void setQuitCursor() {
+        cursor.resetStyle();
 
         cursor.move(105, 20);
+
+        cursor.setUnderline(true);
         cursor.setForegroundColour(255, 255, 255); cursor.setBackgroundColour(0, 0, 0); cursor.setUnderline(true);
+        terminal.print(" ");
+
+        cursor.move(105, 20);
         cursor.setVisible(true);
+    }
+
+
+    public void printHelp(int x, int y) {
+        Command.printHelp(x, y, terminal);
+        // cursor.resetStyle();
+
+        // cursor.move(65, 40);
+        // cursor.setForegroundColour(0, 0, 0); cursor.setBackgroundColour(191, 127, 127); cursor.setBold(true);
+        // terminal.printFixed("help\n\n  H\n\n  ?\n\nquit\n\n  Q");
+
+        // cursor.swapColours(); cursor.setBold(false);
+        // cursor.move(74, 40);
+        // terminal.print("--"); cursor.shift(5, 0); terminal.print("Display information about each command.");
+        // cursor.move(74, 46);
+        // terminal.print("--"); cursor.shift(5, 0); terminal.print("Return to the main menu.");
+
+        // cursor.move(65, 41);
+        // cursor.setForegroundColour(191, 127, 0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(false);
+        // terminal.printFixed("│\n├─\n│\n└─\n\n\n│\n└─");
+    }
+
+    public void printError(int x, int y, String message) {
+        cursor.resetStyle();
+        // 98 30
+        cursor.move(x, y);
+        cursor.setForegroundColour(127, 0, 0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(true);
+        terminal.print(message);
     }
 
 
