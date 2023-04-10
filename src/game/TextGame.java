@@ -16,7 +16,7 @@ public class TextGame {
     // information for the ai player
     private AI aiPlayer;
     private boolean ai;
-    // nearWumpus, nearPit, nearTreasure, able to smell, picked up by bat, able to see, foundTreasure, hit wumpus with arrow
+    // nearWumpus, nearPit, nearTreasure, able to smell, picked up by bat, able to see, foundTreasure, foundExit
     private boolean[] surroundings = {false, false, false, true, false, true, false, false};
     private int wumpusLives;
 
@@ -130,7 +130,6 @@ public class TextGame {
             } else {
                 printShieldUse(); // the player lives if they have a shield
                 moveWumpus(); // move the wumpus to another room
-                surroundings[7] = false;
             }
         }
 
@@ -154,9 +153,16 @@ public class TextGame {
             cave.getPlayer().findTreasure(); // set the treasure as having been found
             surroundings[6] = true;
         }
-        if (type.equals("X") && cave.getPlayer().hadFoundTreasure()) { // exit room
-            printVictory();
-            playing = false;
+        if (type.equals("X")) { // exit room
+            if(!cave.getPlayer().hadFoundTreasure()){
+                printExit();
+                surroundings[7] = true;
+            }
+            if(cave.getPlayer().hadFoundTreasure()){
+                printVictory();
+                surroundings[7] = true;
+                playing = false;
+            }
         }
     }
 
@@ -173,7 +179,6 @@ public class TextGame {
         String name = artefact.getName();
         if (name.equals("D")) { // shield <- defence against wumpus once
             cave.getPlayer().addItem(artefact); // add the shield to the inventory
-            surroundings[7] = true;
         }
         if (name.equals("U")) { // weird drinking water <- loose sense of smell for 5 rounds
             blockedNose = 5;
@@ -320,7 +325,6 @@ public class TextGame {
                 printWumpusKill();
                 printWumpusLives();
                 moveWumpus();
-                surroundings[7] = true;
             }
         } else {
             printWumpusMiss();
@@ -751,5 +755,9 @@ public class TextGame {
     public void printFoundArtefact(Artifact artefact) {
         System.out.println("You see something inside the cave");
         System.out.println(artefact.getAbility());
+    }
+
+    public void printExit(){
+        System.out.println("You see a big door in the cave. It looks like it needs a key to be opened, maybe there is one with the treasure");
     }
 }

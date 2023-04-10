@@ -73,6 +73,9 @@ public class Wumpus {
     }
 
     public String toString() {
-        return " " + this.icon + " ";
+        if(alive){
+            return " " + this.icon + " ";
+        }
+        return " . ";
     }
 }

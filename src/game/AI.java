@@ -39,11 +39,13 @@ public class AI{
         if(blockedNose < 1){
             find(wumpus, coords[0], coords[1], surroundings[0], beenNearWumpus);
             checkWumpusMap();
+            //System.out.println(wumpus);
         }
         // Only update info about the treasure when not blind
         if(blind < 1){
             find(treasure, coords[0], coords[1], surroundings[2], beenNearTreasure);
             checkTreasureMap();
+            //System.out.println(treasure);
         }
         if(!surroundings[6]){ // if the player has not found the treasure then the current room is false
             treasure.put(roomNumber, false);
@@ -58,16 +60,23 @@ public class AI{
         // Leave treasure finding mode after finding the treasure
         if(surroundings[6]){
             treasureMode = false;
+            if(exitLocation != null){
+                exitMode = true;
+            }
+            // could try reseting knowledge of the board otherwise
+        }
+        if(surroundings[7]){
+            exitLocation = roomNumbers.get(roomNumber);
         }
     }
 
     // Method to check the success of shooting
     public void checkShot(){
         if(shot){
-            // if the wumpus is still alive then clear all information about its location because it has moved
-            if(wumpusLives > 0){
-                clearWumpus();
-            }
+            clearWumpus();
+            wumpusLocation = null;
+            shot = false;
+            beenNearWumpus = false;
         }
     }
 
@@ -88,6 +97,7 @@ public class AI{
     private ArrayList<Integer> previousRooms = new ArrayList<>();
     private ArrayList<String> previousMoves = new ArrayList<>();
     private int[] wumpusLocation = null;
+    private int[] exitLocation = null;
     // Counter to stop it from trying to select a random number forever if it is not possible for it to be unique
     private int randomCount = 0;
     // Counters to work out when the player is blind/blocked nose so the ai can ask accordingly
@@ -98,15 +108,12 @@ public class AI{
     private boolean shot = false;
     private boolean beenNearTreasure = false;
     private boolean beenNearWumpus = false;
+    private boolean exitMode = false;
 
     // basic make move method to test that the player actually interacts with the game
     public String makeMove(){
         // Shoot if the wumpus is guaranteed to be in an adjacent room
-        if(getWumpusAdjacent()){
-            // Print for testing purposes
-            int[] coords = roomNumbers.get(roomNumber);
-            System.out.println("player coords: " + coords[0] + "    " + coords[1]);
-            System.out.println("Wumpus coords: " + wumpusLocation[0] + "    " + wumpusLocation[1]);
+        if(getWumpusAdjacent() && !shot){
             shooting = true;
             System.out.println("S");
             return "S";
@@ -131,7 +138,12 @@ public class AI{
             move = moveBackwards();
         }
         else if(treasureMode){
+            System.out.println("It is in treasure mode");
             move = moveToTreasure(safeMoves);
+        }
+        else if(exitMode){
+            System.out.println("It is in exit mode");
+            move = moveTowards(exitLocation, safeMoves);
         }
         else{
             move = chooseRandom(safeMoves);
@@ -249,12 +261,28 @@ public class AI{
 
     // General method for finding something
     public void find(HashMap<Integer, Boolean> map, int row, int column, boolean near, boolean beenNear){
+        ArrayList<Integer> newTrue = new ArrayList<>();
         // get all the coordinates of surrounding squares
         for(int i = -1; i < 2; i++){
             for(int j = -1; j < 2; j++){
                 // Update whether that cell is safe to walk into (not including middle cell)
                 if(!(i == 0 && j == 0)){
                     updateMap(map, validateRow(row + i)*caveRows + validateColumn(column + j) + 1, near, beenNear);
+                    // If the player has been next to the things being tracked before then keep a list of all the new possibly true squares
+                    if(beenNear && near){
+                        newTrue.add(validateRow(row + i)*caveRows + validateColumn(column + j) + 1);
+                    }
+                }
+            }
+        }
+
+        if(beenNear && near){
+            // loop through every one of the old true values to see if it is in the new true values and set the ones that are not to be false
+            ArrayList<Integer> oldTrueRooms = getTrue(map);
+            for(int oldTrue : oldTrueRooms){
+                // If an old true value is not in the new true values then set it to false
+                if(!newTrue.contains(oldTrue)){
+                    map.put(oldTrue, false);
                 }
             }
         }
@@ -291,6 +319,18 @@ public class AI{
         map.put(roomNumber, near);
     }
 
+    public ArrayList<Integer> getTrue(HashMap<Integer, Boolean> map){
+        ArrayList<Integer> possibleRooms = new ArrayList<>();
+        // If something is currently in the map as true then add it to the list of possible rooms
+        for(int roomNumber : map.keySet()){
+            if(map.get(roomNumber)){
+                possibleRooms.add(roomNumber);
+            }
+        }
+
+        return possibleRooms;
+    }
+
     // Method to the map for the location of the treasure
     public void checkTreasureMap(){
         ArrayList<Integer> roomNumbers = new ArrayList<>();
@@ -312,6 +352,7 @@ public class AI{
 
     public String moveTowards(int[] coords, String safeMoves){
         int[] location = roomNumbers.get(roomNumber);
+        System.out.println("Moving towards: " + coords[0] + "   " + coords[1]);
         // if they are not in the same row
         if(location[0] != coords[0]){
             if(location[0] > coords [0]){ // location is further down (right basically)
@@ -433,6 +474,7 @@ public class AI{
                 possibleRooms.add(room);
             }
         }
+        //System.out.println(possibleRooms);
 
         // Pick a random one to move towards <- this can be improved later
         Random random = new Random();
