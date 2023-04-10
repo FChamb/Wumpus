@@ -9,7 +9,7 @@ public class SceneManager {
     public static final int MENU = 0;
     public static final int QUIT = 1;
     public static final int GAME = 2;
-    public static final int END  = 3;
+    public static final int END  = 4;
 
 
     private int scene;
@@ -30,7 +30,8 @@ public class SceneManager {
 
         scenes = new Scene[] {
             new MenuScene(display, in),
-            new QuitScene(display, in)
+            new QuitScene(display, in),
+            new GameScene(display, in)
         };
     }
 

@@ -13,10 +13,11 @@ public class QuitScene extends Scene {
 
     @Override
     protected boolean execute(SceneManager manager) {
-        display.printQuitScreen();
-        input = in.nextLine().toLowerCase();
-
         display.clearScreen();
+        display.printQuitScreen();
+        display.setQuitCursor();
+
+        input = in.nextLine().toLowerCase();
         if(input.equals("y"))
             return true;
         else
