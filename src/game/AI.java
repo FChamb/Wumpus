@@ -118,7 +118,6 @@ public class AI {
         // Leave treasure finding mode after finding the treasure
         if (surroundings[6]) {
             treasureMode = false;
-            //previousRooms.clear(); // clear the previous rooms after finding the treasure
             if (exitLocation != null) {
                 exitMode = true;
             }
@@ -699,7 +698,7 @@ public class AI {
         for (int i = 1; i < 9; i++) {
             duplicates.add(previousRooms.get(previousRooms.size() - i));
         }
-        if (duplicates.size() < 4) {
+        if (duplicates.size() < 3) {
             return true;
         }
         return false;

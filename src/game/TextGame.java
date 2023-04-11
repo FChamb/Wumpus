@@ -20,6 +20,10 @@ public class TextGame {
     // Counters for blindness and loss of smell
     private int blind = -1;
     private int blockedNose = -1;
+    // Attributes for playing against the AI
+    private boolean playingAI;
+    private Cave aiCave;
+    private boolean killWumpus = false;
 
     public static void main(String[] args) {
         TextGame test = new TextGame();
@@ -90,18 +94,21 @@ public class TextGame {
             round++;
 
             // If the ai is playing make the whole game wait
-            /*if (ai) {
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }*/
+            /*
+             * if (ai) {
+             * try {
+             * Thread.sleep(1000);
+             * } catch (Exception e) {
+             * e.printStackTrace();
+             * }
+             * }
+             */
         }
 
-        // Print details of the game after playing (for testing the effectiveness of the AI)
+        // Print details of the game after playing (for testing the effectiveness of the
+        // AI)
         System.out.println("It took " + round + " moves");
-        if(!cave.getWumpus().isAlive()){
+        if (!cave.getWumpus().isAlive()) {
             System.out.println("The Wumpus was successfully killed");
         }
     }
@@ -250,9 +257,17 @@ public class TextGame {
         if (type.equals("X")) { // Exit room
             surroundings[7] = true;
             if (!cave.getPlayer().hadFoundTreasure()) {
-                printExit();
+                printExit(false);
             }
-            if (cave.getPlayer().hadFoundTreasure()) {
+            // Tell the player where the exit is if they have not killed the wumpus
+            else if (killWumpus && !cave.getWumpus().isAlive()) {
+                printExit(true);
+            }
+            // Print the player has won if they are not required to kill the wumpus
+            if (cave.getPlayer().hadFoundTreasure() && !killWumpus) {
+                printVictory();
+                playing = false;
+            } else if (killWumpus && !cave.getWumpus().isAlive() && cave.getPlayer().hadFoundTreasure()) {
                 printVictory();
                 playing = false;
             }
@@ -414,7 +429,7 @@ public class TextGame {
 
         int[] playerCoords = cave.getPlayer().getCoords();
         // Make sure the wumpus moves and does not stay still
-        //  or move to where the player is
+        // or move to where the player is
         while ((row == 0 && column == 0) || (playerCoords[0] == validateRow(coords[0] + row)
                 && playerCoords[1] == validateColumn(coords[1] + column))) {
             row = random.nextInt(3) - 1;
@@ -616,28 +631,38 @@ public class TextGame {
      */
     public void setUp(Player player) {
         player.setName(setName());
-        //player.setName("Player");
+        if (!ai) {
+            playingAI = setPlayingAI();
+        }
+        // player.setName("Player");
         int height = setDimensions(true);
         int width = setDimensions(false);
-        //int height = 20; int width = 20;
+        // int height = 20; int width = 20;
         aiPlayer = new AI(height, width);
         int total = height * width - (height + width);
         int walls = (int) ((setWalls(total) / 100) * total);
-        //int walls = (int) ((35d / 100) * total);
+        // int walls = (int) ((35d / 100) * total);
         total -= walls;
         int bats = setLayout(false, total);
-        //int bats = 5;
+        // int bats = 5;
         total -= bats;
         int pits = setLayout(true, total);
-        //int pits = 10;
+        // int pits = 10;
         total -= pits;
         int artifacts = setArtifacts(total);
-        //int artifacts = 4;
+        // int artifacts = 4;
         player.setArrows(setArrows()); // Set the number of arrows the player has
-        //player.setArrows(5); // Set the number of arrows the player has
+        // player.setArrows(5); // Set the number of arrows the player has
         cave = new Cave(height, width, pits, bats, walls, artifacts, player);
         cave.getWumpus().setLives(setWumpusLives()); // Set the number of lives the Wumpus has
-        //cave.getWumpus().setLives(3); // Set the number of lives the Wumpus has
+        // cave.getWumpus().setLives(3); // Set the number of lives the Wumpus has
+        if (!ai && !playingAI) {
+            killWumpus = setWumpus();
+        }
+        // Set up the AI's cave to be identical to the players cave
+        if (playingAI) {
+            aiCave = new Cave(cave);
+        }
     }
 
     /**
@@ -851,6 +876,42 @@ public class TextGame {
     }
 
     /**
+     * Gets user input about whether the user wants to be required to kill the
+     * wumpus
+     * 
+     * @return boolean indicating whether the player wants to be required to kill
+     *         the wumpus
+     */
+    public Boolean setWumpus() {
+        System.out.println("Do you want to have to kill the Wumpus (Y-N)?");
+        String answer = scanner.nextLine();
+        if (answer.equalsIgnoreCase("Y")) {
+            return true;
+        } else if (answer.equalsIgnoreCase("N")) {
+            return false;
+        } else {
+            return setWumpus();
+        }
+    }
+
+    /**
+     * Gets use input about whether the player would like to play against the AI
+     * 
+     * @return boolean about whether the player wants to play against the AI
+     */
+    public Boolean setPlayingAI() {
+        System.out.println("Do you want to race against the AI (Y-N)?");
+        String answer = scanner.nextLine();
+        if (answer.equalsIgnoreCase("Y")) {
+            return true;
+        } else if (answer.equalsIgnoreCase("N")) {
+            return false;
+        } else {
+            return setPlayingAI();
+        }
+    }
+
+    /**
      * Prints a message for if the wumpus is nearby
      */
     public void printWumpus() {
@@ -1010,10 +1071,17 @@ public class TextGame {
 
     /**
      * Prints message about finding the exit
+     * 
+     * @param wumpus - whether the player is required to kill the wumpus or not
      */
-    public void printExit() {
-        System.out.println(
-                "You see a big door in the cave. It looks like it needs a key to be opened, maybe there is one with the treasure");
+    public void printExit(boolean wumpus) {
+        if (wumpus) {
+            System.out.println(
+                    "You see a big door in the cave. It looks like it needs a key to be opened, maybe there is one with the wumpus");
+        } else {
+            System.out.println(
+                    "You see a big door in the cave. It looks like it needs a key to be opened, maybe there is one with the treasure");
+        }
     }
 
     /**
