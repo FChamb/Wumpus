@@ -41,7 +41,7 @@ public class TextGame {
     public void playGame() {
         // Get the players coordinates
         int[] coords = cave.getPlayer().getCoords();
-
+        int round = 0;
         while (playing) {
             // print the cave when not blind
             if (blind < 0) {
@@ -54,7 +54,7 @@ public class TextGame {
             checkCell(coords[0], coords[1]);
             // End the game if the player has lost
             if (!playing) {
-                return;
+                break;
             }
             // Update the players coordinates
             coords = cave.getPlayer().getCoords();
@@ -74,7 +74,7 @@ public class TextGame {
             if (ai) {
                 aiPlayer.setInfo(roomNumber, surroundings, nsew);
                 // Reset all the booleans for next round
-                surroundings = new boolean[] { false, false, false, true, false, true, surroundings[6], false };
+                surroundings = new boolean[] { false, false, false, true, false, true, false, false };
             }
 
             // Get the players next move
@@ -87,15 +87,22 @@ public class TextGame {
             // Update the counters
             blind--;
             blockedNose--;
+            round++;
 
             // If the ai is playing make the whole game wait
-            if (ai) {
+            /*if (ai) {
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
+            }*/
+        }
+
+        // Print details of the game after playing (for testing the effectiveness of the AI)
+        System.out.println("It took " + round + " moves");
+        if(!cave.getWumpus().isAlive()){
+            System.out.println("The Wumpus was successfully killed");
         }
     }
 
@@ -612,11 +619,11 @@ public class TextGame {
         player.setName("Player");
         // int height = setDimensions(true);
         // int width = setDimensions(false);
-        int height = 10; int width = 10;
+        int height = 20; int width = 20;
         aiPlayer = new AI(height, width);
         int total = height * width - (height + width);
         // int walls = (int) ((setWalls(total) / 100) * total);
-        int walls = (int) ((35 / 100) * total);
+        int walls = (int) ((35d / 100) * total);
         total -= walls;
         // int bats = setLayout(false, total);
         int bats = 5;
