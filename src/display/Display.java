@@ -1,5 +1,6 @@
 package display;
 
+import java.util.Arrays;
 import java.util.List;
 
 import game.Cave;
@@ -118,7 +119,7 @@ public class Display {
 
         // print plain board
         cursor.move(x, y);
-        cursor.setForegroundColour(95, 95, 95); cursor.setBackgroundColour(0, 0, 0);
+        cursor.setForegroundColour(255, 255, 255); cursor.setBackgroundColour(0, 0, 0);
 
         text = "";
         for(j = 0; j < height; j++) {
@@ -128,14 +129,15 @@ public class Display {
         }
         terminal.printFixed(text);
 
+        // System.out.println(Arrays.deepToString(rooms));
         // print walls
         cursor.setForegroundColour(95, 95, 95); cursor.setBackgroundColour(0, 0, 0);
         for(j = 0; j < height; j++)
             for(i = 0; i < width; i++) {
-                System.out.print(rooms[i][j].toString());
-                if(rooms[i][j].getType().equals(Room.WLL)) {
+                // System.out.print(rooms[i][j].toString());
+                if(rooms[i][j].getType().equals(""+Room.WLL)) {
                     cursor.move(x + 2*i, y + j);
-                    terminal.print("#"); //▓
+                    terminal.print(" "); //▓
                 }
             }
 

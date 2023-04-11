@@ -612,11 +612,11 @@ public class TextGame {
         player.setName("Player");
         // int height = setDimensions(true);
         // int width = setDimensions(false);
-        int height = 10; int width = 10;
+        int height = 20; int width = 20;
         aiPlayer = new AI(height, width);
         int total = height * width - (height + width);
         // int walls = (int) ((setWalls(total) / 100) * total);
-        int walls = (int) ((35 / 100) * total);
+        int walls = (int) ((35d / 100) * total);
         total -= walls;
         // int bats = setLayout(false, total);
         int bats = 5;
