@@ -118,6 +118,7 @@ public class AI {
         // Leave treasure finding mode after finding the treasure
         if (surroundings[6]) {
             treasureMode = false;
+            //previousRooms.clear(); // clear the previous rooms after finding the treasure
             if (exitLocation != null) {
                 exitMode = true;
             }
@@ -514,6 +515,10 @@ public class AI {
      */
     public void checkBats() {
         if (surroundings[4]) {
+            // Only get the coords if there is a second last room
+            if(previousRooms.size() < 2){
+                return;
+            }
             // Get the coords from the second to last room
             int[] previousCoords = roomNumbers.get(previousRooms.get(previousRooms.size() - 2));
             int[] batCoords = { previousCoords[0], previousCoords[1] };
@@ -567,16 +572,16 @@ public class AI {
         // Get the previous move
         String previousMove = previousMoves.get(previousMoves.size() - 1);
         // Reverse the move
-        if (previousMove.equalsIgnoreCase("N")) {
+        if (previousMove.equalsIgnoreCase("N") && nsew.contains("S")) {
             return "S";
         }
-        if (previousMove.equalsIgnoreCase("S")) {
+        if (previousMove.equalsIgnoreCase("S") && nsew.contains("N")) {
             return "N";
         }
-        if (previousMove.equalsIgnoreCase("E")) {
+        if (previousMove.equalsIgnoreCase("E") && nsew.contains("w")) {
             return "W";
         }
-        if (previousMove.equalsIgnoreCase("W")) {
+        if (previousMove.equalsIgnoreCase("W") && nsew.contains("E")) {
             return "E";
         }
 
@@ -687,11 +692,11 @@ public class AI {
      * @return whether the player has been repeating the same two moves
      */
     public boolean checkPreviousMoves() {
-        if (previousRooms.size() < 10) {
+        if (previousRooms.size() < 8) {
             return false;
         }
         Set<Integer> duplicates = new HashSet<>();
-        for (int i = 1; i < 11; i++) {
+        for (int i = 1; i < 9; i++) {
             duplicates.add(previousRooms.get(previousRooms.size() - i));
         }
         if (duplicates.size() < 3) {
