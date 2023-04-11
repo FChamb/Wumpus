@@ -44,6 +44,23 @@ public class Cave {
         generateCave();
     }
 
+    public Cave(Cave cave) {
+        this.xSize = cave.xSize;
+        this.ySize = cave.ySize;
+        this.numOfPits = cave.numOfPits;
+        this.numOfSupBats = cave.numOfSupBats;
+        this.numWalls = cave.numWalls;
+        this.player = cave.getPlayer();
+        this.wumpus = cave.getWumpus();
+        this.numOfArtifacts = cave.numOfArtifacts;
+        this.cave = new Room[this.xSize][this.ySize];
+        for (int i = 0; i < this.xSize; i++) {
+            for (int j = 0; j < this.ySize; j++) {
+                this.cave[i][j] = cave.getLayout()[i][j];
+            }
+        }
+    }
+
     /**
      * Getter for returning the layout of the cave
      * @return - the 2D array of rooms which contain the cave
@@ -281,7 +298,7 @@ public class Cave {
      */
     public static void main(String[] args) {
         Player test = new Player("Finnegan");
-        Cave cave = new Cave(10, 10, 15, 5, 32, 5, test);
+        Cave cave = new Cave(10, 10, 15, 5, 28, 5, test);
         System.out.println(cave);
     }
 }
