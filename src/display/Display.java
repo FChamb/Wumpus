@@ -1,6 +1,10 @@
 package display;
 
+import java.util.List;
+
+import game.Cave;
 import game.Command;
+import game.Room;
 
 public class Display {
 
@@ -86,7 +90,7 @@ public class Display {
 
         cursor.shift(12, 0);
         cursor.setForegroundColour(255, 255, 255); cursor.setBackgroundColour(0, 0, 0);
-        terminal.print(": ");
+        terminal.print(":");
     }
     public void setGameCursor(int x, int y) {
         cursor.resetStyle();
@@ -101,6 +105,61 @@ public class Display {
         cursor.move(x, y);
         // cursor.move(93, 30);
         cursor.setVisible(true);
+    }
+    public void printGameBoard(int x, int y, Cave cave, List<List<Boolean>> player_tracks) {
+        int width = player_tracks.size(), height = player_tracks.get(0).size();
+        int[] pos = cave.getPlayer().getCoords();
+        Room[][] rooms = cave.getLayout();
+
+        String text;
+        int j, i;
+
+        cursor.resetStyle();
+
+        // print plain board
+        cursor.move(x, y);
+        cursor.setForegroundColour(95, 95, 95); cursor.setBackgroundColour(0, 0, 0);
+
+        text = "";
+        for(j = 0; j < height; j++) {
+            for(i = 0; i < width; i++)
+                text += "." + (i == width-1 ? "" : " ");
+            text += (j == height-1 ? "" : "\n");
+        }
+        terminal.printFixed(text);
+
+        // print walls
+        cursor.setForegroundColour(95, 95, 95); cursor.setBackgroundColour(0, 0, 0);
+        for(j = 0; j < height; j++)
+            for(i = 0; i < width; i++) {
+                System.out.print(rooms[i][j].toString());
+                if(rooms[i][j].getType().equals(Room.WLL)) {
+                    cursor.move(x + 2*i, y + j);
+                    terminal.print("#"); //▓
+                }
+            }
+
+        // print tracks
+        cursor.setForegroundColour(127, 127, 127); cursor.setBackgroundColour(31, 31, 31);
+
+        for(j = 0; j < height; j++)
+            for(i = 0; i < width; i++)
+                if(player_tracks.get(i).get(j)) {
+                    cursor.move(x + 2*i, y + j);
+                    terminal.print(" ");
+
+                    // connect tunnel
+                }
+        
+        // print player
+        cursor.move(x+2*pos[0], y+pos[1]);
+        cursor.setForegroundColour(191, 127, 0); cursor.setBackgroundColour(31, 31, 31); cursor.setBold(true);
+        
+        terminal.print(""+cave.getPlayer().getIcon());
+
+        // set cursor for percepts
+        cursor.move(x+10, y-6);
+        cursor.setForegroundColour(255, 31, 31); cursor.setBackgroundColour(0, 0, 0);// cursor.setBold(true);
     }
 
 
