@@ -131,6 +131,10 @@ public class Player {
         }
     }
 
+    public char getIcon() {
+        return icon;
+    }
+    
     /**
      * Puts the player into a string and returns.
      * @return

@@ -1,6 +1,15 @@
 package game;
 
 public class Room {
+
+    public static final char BSC = '.';
+    public static final char WLL = ' ';
+    public static final char PIT = 'o';
+    public static final char BAT = 'w';
+    public static final char TSR = 'G';
+    public static final char EXT = 'X';
+
+
     /**
      * A room can be one of four different types.
      * "." basic room with no special properties
@@ -14,9 +23,11 @@ public class Room {
     private Artifact artifact = null;
 
     public Room() {
-        this.Type = ".";
+        this.Type = ""+BSC;
     }
-
+    public Room(char Type) {
+        this.Type = ""+Type;
+    }
     public Room(String Type) {
         this.Type = Type;
     }
