@@ -75,6 +75,10 @@ public class Player {
         }
     }
 
+    public char getIcon() {
+        return icon;
+    }
+
     public String toString() {
         return " " + this.icon + " ";
     }

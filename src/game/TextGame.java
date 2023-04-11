@@ -2,11 +2,13 @@ package game;
 
 import java.util.*;
 
+import scenes.GameScene;
+
 public class TextGame {
     // attributes
     private Cave cave; // Cave for the game
     private boolean playing = true; // Boolean to run the game
-    private ArrayList<ArrayList<Boolean>> displayBoard = new ArrayList<>();
+    private List<List<Boolean>> displayBoard = new ArrayList<>();
     private Scanner scanner = new Scanner(System.in);
 
     // Information for the ai player
@@ -93,6 +95,68 @@ public class TextGame {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
+        }
+    }
+
+    /**
+     * Runs the function of the game -- compatable with GUI
+     */
+    public void stepGame(GameScene scene) {
+        // Get the players coordinates
+        int[] coords = cave.getPlayer().getCoords();
+
+        // print the cave when not blind
+        if (blind < 0) {
+            updateDisplayBoard();
+            scene.printBoard(cave, displayBoard);
+            // printCaveDetails(); // for testing purposes
+        }
+
+        // Check current cell is safe
+        checkCell(coords[0], coords[1]);
+        // End the game if the player has lost
+        if (!playing) {
+            return;
+        }
+        // Update the players coordinates
+        coords = cave.getPlayer().getCoords();
+
+        // Print out the room number the player is in
+        int roomNumber = coords[0] * cave.xSize + coords[1] + 1;
+        ////// scene.printRoom(roomNumber);
+
+        // Check content of neighbouring cells
+        checkNeighbours(coords[0], coords[1]);
+
+        // Print out the neighbouring cells
+        String nsew = getWalls();
+        ////// scene.printNeighbours(nsew);
+
+        // Give the ai the required information
+        if (ai) {
+            aiPlayer.setInfo(roomNumber, surroundings, nsew);
+            // Reset all the booleans for next round
+            surroundings = new boolean[] { false, false, false, true, false, true, surroundings[6], false };
+        }
+
+        // Get the players next move
+        scene.getMove();
+
+        // Update the players coordinates after performing move
+        coords = cave.getPlayer().getCoords();
+        // System.out.println();
+
+        // Update the counters
+        blind--;
+        blockedNose--;
+
+        // If the ai is playing make the whole game wait
+        if (ai) {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -544,21 +608,29 @@ public class TextGame {
      * @param player
      */
     public void setUp(Player player) {
-        player.setName(setName());
-        int height = setDimensions(true);
-        int width = setDimensions(false);
+        // player.setName(setName());
+        player.setName("Player");
+        // int height = setDimensions(true);
+        // int width = setDimensions(false);
+        int height = 10; int width = 10;
         aiPlayer = new AI(height, width);
         int total = height * width - (height + width);
-        int walls = (int) ((setWalls(total) / 100) * total);
+        // int walls = (int) ((setWalls(total) / 100) * total);
+        int walls = (int) ((35 / 100) * total);
         total -= walls;
-        int bats = setLayout(false, total);
+        // int bats = setLayout(false, total);
+        int bats = 5;
         total -= bats;
-        int pits = setLayout(true, total);
+        // int pits = setLayout(true, total);
+        int pits = 10;
         total -= pits;
-        int artifacts = setArtifacts(total);
-        player.setArrows(setArrows()); // Set the number of arrows the player has
+        // int artifacts = setArtifacts(total);
+        int artifacts = 4;
+        // player.setArrows(setArrows()); // Set the number of arrows the player has
+        player.setArrows(5); // Set the number of arrows the player has
         cave = new Cave(height, width, pits, bats, walls, artifacts, player);
-        cave.getWumpus().setLives(setWumpusLives()); // Set the number of lives the Wumpus has
+        // cave.getWumpus().setLives(setWumpusLives()); // Set the number of lives the Wumpus has
+        cave.getWumpus().setLives(3); // Set the number of lives the Wumpus has
     }
 
     /**
