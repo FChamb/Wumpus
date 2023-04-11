@@ -621,7 +621,7 @@ public class TextGame {
         // int width = setDimensions(false);
         int height = 20; int width = 20;
         aiPlayer = new AI(height, width);
-        int total = height * width - (height + width);
+        int total = height * width - (height + width + 1);
         // int walls = (int) ((setWalls(total) / 100) * total);
         int walls = (int) ((35d / 100) * total);
         total -= walls;

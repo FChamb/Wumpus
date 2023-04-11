@@ -28,7 +28,7 @@ public class Cave {
      * @param player - a player
      */
     public Cave(int xSize, int ySize, int numOfPits, int numOfSupBats, int numWalls, int numOfArtifacts, Player player) {
-        if (numOfPits + numOfSupBats + numWalls + numOfArtifacts + xSize + ySize > xSize * ySize) {
+        if (numOfPits + numOfSupBats + numWalls + numOfArtifacts + 1 + xSize + ySize > xSize * ySize) {
             throw new ArrayIndexOutOfBoundsException("Too many objects defined for the size of cave!");
         }
         this.xSize = xSize;
@@ -193,7 +193,7 @@ public class Cave {
         boolean wumpus = true;
         int numOfItems = 0;
         int numWalls = 0;
-        int total = this.numOfPits + this.numOfSupBats + this.numWalls + this.numOfArtifacts;
+        int total = this.numOfPits + this.numOfSupBats + this.numWalls + this.numOfArtifacts + 1;
         int x; int y;
         while (total > 0) {
             int[] location = getRandom();
@@ -298,7 +298,7 @@ public class Cave {
      */
     public static void main(String[] args) {
         Player test = new Player("Finnegan");
-        Cave cave = new Cave(10, 10, 15, 5, 28, 5, test);
+        Cave cave = new Cave(10, 10, 0, 0, 0, 0, test);
         System.out.println(cave);
     }
 }
