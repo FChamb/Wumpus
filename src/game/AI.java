@@ -699,7 +699,7 @@ public class AI {
         for (int i = 1; i < 9; i++) {
             duplicates.add(previousRooms.get(previousRooms.size() - i));
         }
-        if (duplicates.size() < 3) {
+        if (duplicates.size() < 4) {
             return true;
         }
         return false;

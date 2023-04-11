@@ -615,29 +615,29 @@ public class TextGame {
      * @param player
      */
     public void setUp(Player player) {
-        // player.setName(setName());
-        player.setName("Player");
-        // int height = setDimensions(true);
-        // int width = setDimensions(false);
-        int height = 20; int width = 20;
+        player.setName(setName());
+        //player.setName("Player");
+        int height = setDimensions(true);
+        int width = setDimensions(false);
+        //int height = 20; int width = 20;
         aiPlayer = new AI(height, width);
         int total = height * width - (height + width);
-        // int walls = (int) ((setWalls(total) / 100) * total);
-        int walls = (int) ((35d / 100) * total);
+        int walls = (int) ((setWalls(total) / 100) * total);
+        //int walls = (int) ((35d / 100) * total);
         total -= walls;
-        // int bats = setLayout(false, total);
-        int bats = 5;
+        int bats = setLayout(false, total);
+        //int bats = 5;
         total -= bats;
-        // int pits = setLayout(true, total);
-        int pits = 10;
+        int pits = setLayout(true, total);
+        //int pits = 10;
         total -= pits;
-        // int artifacts = setArtifacts(total);
-        int artifacts = 4;
-        // player.setArrows(setArrows()); // Set the number of arrows the player has
-        player.setArrows(5); // Set the number of arrows the player has
+        int artifacts = setArtifacts(total);
+        //int artifacts = 4;
+        player.setArrows(setArrows()); // Set the number of arrows the player has
+        //player.setArrows(5); // Set the number of arrows the player has
         cave = new Cave(height, width, pits, bats, walls, artifacts, player);
-        // cave.getWumpus().setLives(setWumpusLives()); // Set the number of lives the Wumpus has
-        cave.getWumpus().setLives(3); // Set the number of lives the Wumpus has
+        cave.getWumpus().setLives(setWumpusLives()); // Set the number of lives the Wumpus has
+        //cave.getWumpus().setLives(3); // Set the number of lives the Wumpus has
     }
 
     /**
