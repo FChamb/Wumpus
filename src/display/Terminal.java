@@ -39,6 +39,8 @@ public class Terminal {
             else                        System.out.print("\033[24m");
             if(((style >> 3) & 1) == 1) System.out.print("\033[5m" );
             else                        System.out.print("\033[25m");
+            if(((style >> 4) & 1) == 1) System.out.print("\033[3m" );
+            else                        System.out.print("\033[23m");
 
             setColours();
         }
@@ -60,6 +62,11 @@ public class Terminal {
         public void setBlinking(boolean state) {
             if(state) style |=  8;
             else      style &= ~8;
+            applyStyle();
+        }
+        public void setItalics(boolean state) {
+            if(state) style |=  16;
+            else      style &= ~16;
             applyStyle();
         }
 

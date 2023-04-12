@@ -12,36 +12,65 @@ public class GameScene extends Scene {
 
     private static final int[] input_position = new int[] {20 , 5 };
     private static final int[]  help_position = new int[] {10 , 15};
-    private static final int[] board_position = new int[] {120, 15};
+    private static final int[] board_position = new int[] {140, 25};
 
 
     private boolean show_help, input_error;
+    private String status_message, percept_message;
 
     private String[] command;
 
     private TextGame game;
 
 
-    public GameScene(Display display, Scanner in) {
-        super(display, in);
+    public GameScene(Display display, Scanner in, SceneManager manager) {
+        super(display, in, manager);
 
         show_help = false; input_error = false;
+        status_message = ""; percept_message = "";
 
         game = new TextGame();
     }
 
 
     @Override
-    protected boolean execute(SceneManager manager) {
+    protected boolean execute() {
         display.clearScreen();
-
-        game.stepGame(this);
 
         display.printGameInput(input_position[0], input_position[1]);
         if(  show_help) display.printHelp(help_position[0], help_position[1]);
+        else            display.printGameStatus(input_position[0], input_position[1] + 2, status_message);
         if(input_error) ;//display.printError(98, 35, "Input Error");
-        display.setGameCursor(input_position[0] + 36, input_position[1]);
 
+        status_message = "";
+
+        game.stepGame(this);
+        
+        return false;
+    }
+
+
+    public void printBoard(Cave cave, List<List<Boolean>> player_tracks) {
+        display.printGameBoard(board_position[0], board_position[1], cave, player_tracks, percept_message);
+        display.setGameCursor(input_position[0] + 36, input_position[1]);
+        percept_message = "";
+    }
+    public void printLoss(String message) {
+
+    }
+    public void printVictory() {
+
+    }
+    public void setStatusMessage(String message) {
+        status_message += message + "\n";
+    }
+    public void setPerceptMessage(String message) {
+        // System.out.println(message); in.nextLine();
+        percept_message += message + "\n";
+    }
+
+
+    public void getMove() {
         // process input
         input = in.nextLine().toLowerCase();
         command = Command.parseCommand(input);
@@ -49,19 +78,10 @@ public class GameScene extends Scene {
 
         else if(command[0].equals("help")) { show_help = true; input_error = false; }
         else if(command[0].equals("quit"))   manager.changeScene(SceneManager.QUIT);
-        else if(command[0].equals("move")) ;
-        
-        return false;
-    }
-
-
-    public void printBoard(Cave cave, List<List<Boolean>> player_tracks) {
-        display.printGameBoard(board_position[0], board_position[1], cave, player_tracks);
-    }
-
-
-    public void getMove() {
-
+        else if(command[0].equals("move")) {
+            if(command[1].equals("n") || command[1].equals("e") || command[1].equals("s") || command[1].equals("w"))
+                game.getMove(this, "m", command[1]);
+        }
     }
 
 
