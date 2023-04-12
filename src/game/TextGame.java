@@ -779,9 +779,6 @@ public class TextGame {
      */
     public void setUp(Player player) {
         // player.setName(setName());
-        if (!ai) {
-            playingAI = setPlayingAI();
-        }
         player.setName("@tha");
         // setName();
         // int height = setDimensions(true);
