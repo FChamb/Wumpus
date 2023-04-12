@@ -21,8 +21,6 @@ public class TextGame {
     private int blind = -1;
     private int blockedNose = -1;
     // Attributes for playing against the AI
-    private boolean playingAI;
-    private Cave aiCave;
     private boolean killWumpus = false;
 
     public static void main(String[] args) {
@@ -50,8 +48,7 @@ public class TextGame {
             // print the cave when not blind
             if (blind < 0) {
                 updateDisplayBoard();
-                // printBoard();
-                printCaveDetails(); // for testing purposes
+                printBoard();
             }
 
             // Check current cell is safe
@@ -94,23 +91,15 @@ public class TextGame {
             round++;
 
             // If the ai is playing make the whole game wait
-            /*
-             * if (ai) {
-             * try {
-             * Thread.sleep(1000);
-             * } catch (Exception e) {
-             * e.printStackTrace();
-             * }
-             * }
-             */
+            if (ai) {
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
-        // Print details of the game after playing (for testing the effectiveness of the
-        // AI)
         System.out.println("It took " + round + " moves");
-        if (!cave.getWumpus().isAlive()) {
-            System.out.println("The Wumpus was successfully killed");
-        }
     }
 
     /**
@@ -124,7 +113,6 @@ public class TextGame {
         if (blind < 0) {
             updateDisplayBoard();
             scene.printBoard(cave, displayBoard);
-            // printCaveDetails(); // for testing purposes
         }
 
         // Check current cell is safe
@@ -233,8 +221,7 @@ public class TextGame {
             // Print the new cave layout
             if (blind < 0) {
                 updateDisplayBoard();
-                // printBoard();
-                printCaveDetails(); // for testing purposes
+                printBoard();
             }
             checkCell(playerCoords[0], playerCoords[1]);
             return;
@@ -631,9 +618,6 @@ public class TextGame {
      */
     public void setUp(Player player) {
         player.setName(setName());
-        if (!ai) {
-            playingAI = setPlayingAI();
-        }
         // player.setName("Player");
         int height = setDimensions(true);
         int width = setDimensions(false);
@@ -656,12 +640,8 @@ public class TextGame {
         cave = new Cave(height, width, pits, bats, walls, artifacts, player);
         cave.getWumpus().setLives(setWumpusLives()); // Set the number of lives the Wumpus has
         // cave.getWumpus().setLives(3); // Set the number of lives the Wumpus has
-        if (!ai && !playingAI) {
+        if (!ai) {
             killWumpus = setWumpus();
-        }
-        // Set up the AI's cave to be identical to the players cave
-        if (playingAI) {
-            aiCave = new Cave(cave);
         }
     }
 
@@ -891,23 +871,6 @@ public class TextGame {
             return false;
         } else {
             return setWumpus();
-        }
-    }
-
-    /**
-     * Gets use input about whether the player would like to play against the AI
-     * 
-     * @return boolean about whether the player wants to play against the AI
-     */
-    public Boolean setPlayingAI() {
-        System.out.println("Do you want to race against the AI (Y-N)?");
-        String answer = scanner.nextLine();
-        if (answer.equalsIgnoreCase("Y")) {
-            return true;
-        } else if (answer.equalsIgnoreCase("N")) {
-            return false;
-        } else {
-            return setPlayingAI();
         }
     }
 
