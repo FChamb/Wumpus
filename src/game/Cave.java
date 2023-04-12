@@ -159,10 +159,10 @@ public class Cave {
                     }
                     break;
             }
-            if (path.contains(x + "x" + y)) {
-                i--;
-                continue;
-            }
+            // if (path.contains(x + "x" + y)) {
+            //     i--;
+            //     continue;
+            // }
             path.add(x + "x" + y);
             this.validRooms.remove(x + "x" + y);
             start = new int[]{x, y};

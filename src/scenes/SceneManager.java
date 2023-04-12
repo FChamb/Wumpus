@@ -29,9 +29,9 @@ public class SceneManager {
         in = new Scanner(System.in);
 
         scenes = new Scene[] {
-            new MenuScene(display, in),
-            new QuitScene(display, in),
-            new GameScene(display, in)
+            new MenuScene(display, in, this),
+            new QuitScene(display, in, this),
+            new GameScene(display, in, this)
         };
     }
 
@@ -46,7 +46,7 @@ public class SceneManager {
 
 
     public boolean execute() {
-        return scenes[scene].execute(this);
+        return scenes[scene].execute();
     }
 
 

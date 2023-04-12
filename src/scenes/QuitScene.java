@@ -6,13 +6,13 @@ import display.Display;
 
 public class QuitScene extends Scene {
 
-    public QuitScene(Display display, Scanner in) {
-        super(display, in);
+    public QuitScene(Display display, Scanner in, SceneManager manager) {
+        super(display, in, manager);
     }
 
 
     @Override
-    protected boolean execute(SceneManager manager) {
+    protected boolean execute() {
         display.clearScreen();
         display.printQuitScreen();
         display.setQuitCursor();

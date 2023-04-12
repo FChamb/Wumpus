@@ -28,6 +28,8 @@ public class Command {
 
     public static String[] parseCommand(String text) {
         String[] words = text.split(" ");
+        if(words.length == 0) return null;
+        
         boolean caught_alias;
         for(Command c : COMMANDS) {
             caught_alias = false;
@@ -36,7 +38,8 @@ public class Command {
             if(caught_alias || words[0].equals(c.command)) {
                 if(c.arguments.length() == 0) return new String[] {c.command};
                 else {
-                    String arguments = text.substring(c.command.length() + 1);
+                    String arguments = "";
+                    for(int i = 1; i < words.length; i++) if(!words[i].equals("")) arguments += words[i] + (i == words.length-1 ? "" : " ");
                     return new String[] {c.command, arguments};
                 }
             }
