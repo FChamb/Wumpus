@@ -538,7 +538,6 @@ public class TextGame {
     /**
      * Gets whether the player wants to move or shoot for the GUI
      * 
-     * @param scene     - the game scene that is being displayed
      * @param decision  - whether the player wants to move or shoot
      * @param direction - the direction the player wants to move/shoot in
      */
