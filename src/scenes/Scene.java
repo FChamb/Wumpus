@@ -12,6 +12,8 @@ public abstract class Scene {
     protected Scanner in;
     protected String input;
 
+    protected String global_attribute;
+
 
     public Scene(Display display, Scanner in, SceneManager manager) {
         this.manager = manager;
@@ -21,4 +23,8 @@ public abstract class Scene {
 
 
     protected abstract boolean execute();
+
+    public void setAttribute(String attr) {
+        global_attribute = attr;
+    }
 }

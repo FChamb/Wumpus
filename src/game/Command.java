@@ -8,8 +8,7 @@ public class Command {
         new Command("help"     , ""         , "Display information about each command."   ,                   "h", "?"),
         new Command("quit"     , ""         , "Return to the main menu."                  ,                   "q"     ),
         new Command("move"     , "<N/S/E/W>", "Move the player in any cardinal direction.",             "go", "m", "g"),
-        new Command("shoot"    , "<N/S/E/W>", "Shoot an arrow in any cardinal direction." , "fire"    ,       "s", "f"),
-        new Command("artifacts", ""         , "List the artifacts you have collected."    , "artifact",       "a"     )
+        new Command("shoot"    , "<N/S/E/W>", "Shoot an arrow in any cardinal direction." , "fire"    ,       "s", "f")
     };
 
     public static final byte[]  command_fore = new byte[] {(byte)63 , (byte)63 , (byte)63 };

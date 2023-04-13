@@ -121,10 +121,15 @@ public class Display {
             terminal.print(sub_message);
         }
     }
-    public void printGameBoard(int cx, int cy, Cave cave, List<List<Boolean>> player_tracks, String percept_message) {
+    public void printGameBoard(int cx, int cy, Cave cave, List<List<Boolean>> player_tracks, String percept_message, boolean is_blind) {
+        printGameBoard(false, cx, cy, cave, player_tracks, percept_message, is_blind);
+    }
+    public void printGameBoard(boolean show_all, int cx, int cy, Cave cave, List<List<Boolean>> player_tracks, String percept_message, boolean is_blind) {
         int width = player_tracks.size(), height = player_tracks.get(0).size();
         int[] pos = cave.getPlayer().getCoords();
         Room[][] rooms = cave.getLayout();
+
+        int temp = height; height = width; width = temp;
 
         int x = cx - width, y = cy - height/2;
 
@@ -149,39 +154,51 @@ public class Display {
         cursor.move(x           - 4, y + height/2    );
         terminal.print("W");
 
-        // print plain board
+
         cursor.move(x, y);
         cursor.setItalics(false); cursor.setBold(false);
-
-        text = "";
-        for(j = 0; j < height; j++) {
-            for(i = 0; i < width; i++)
-                text += "." + (i == width-1 ? "" : " ");
-            text += (j == height-1 ? "" : "\n");
-        }
-        terminal.printFixed(text);
-
-        // print walls
-        cursor.setForegroundColour(95, 95, 95); cursor.setBackgroundColour(0, 0, 0);
-        for(j = 0; j < height; j++)
-            for(i = 0; i < width; i++) {
-                if(rooms[j][i].getType().equals(""+Room.WLL)) {
-                    cursor.move(x + 2*i, y + j);
-                    terminal.print(" "); //▓
-                }
-                if(rooms[j][i].getType().equals(""+Room.BAT)) {
-                    cursor.move(x + 2*i, y + j);
-                    terminal.print("≡"); //▓
-                }
-                if(rooms[j][i].getType().equals(""+Room.PIT)) {
-                    cursor.move(x + 2*i, y + j);
-                    terminal.print("o"); //▓
-                }
-                if(rooms[j][i].getType().equals(""+Room.TSR)) {
-                    cursor.move(x + 2*i, y + j);
-                    terminal.print("&"); //▓
-                }
+        int[] wumpusCoords = cave.getWumpus().getCoords();
+        if(!is_blind) {
+            // print plain board
+            text = "";
+            for(j = 0; j < height; j++) {
+                for(i = 0; i < width; i++)
+                    text += "." + (i == width-1 ? "" : " ");
+                text += (j == height-1 ? "" : "\n");
             }
+            terminal.printFixed(text);
+
+            // print rooms
+            cursor.setForegroundColour(95, 95, 95); cursor.setBackgroundColour(0, 0, 0);
+            for(j = 0; j < height; j++)
+                for(i = 0; i < width; i++) {
+                    cursor.move(x + 2*i, y + j);
+                    if(rooms[j][i].getType().equals(""+Room.WLL)) {
+                        terminal.print(" "); //▓
+                    }
+                    if(show_all) {
+                        terminal.print(rooms[j][i].toString().substring(1,2));
+                        // if(rooms[j][i].getType().equals(""+Room.BAT)) {
+                        //     terminal.print(""+Room.BAT/*"≡"*/); //▓
+                        // }
+                        // if(rooms[j][i].getType().equals(""+Room.PIT)) {
+                        //     terminal.print("o"); //▓
+                        // }
+                        // if(rooms[j][i].getType().equals(""+Room.TSR)) {
+                        //     terminal.print("&"); //▓
+                        // }
+                        // if(rooms[j][i].getType().equals(""+Room.EXT)) {
+                        //     terminal.print("X"); //▓
+                        // }
+                    }
+                }
+            
+            // print wumpus
+            if(show_all) {
+                cursor.move(x + 2*wumpusCoords[1], y + wumpusCoords[0]);
+                terminal.print("!");
+            }
+        }
 
         // print tracks
         cursor.setForegroundColour(127, 127, 127); cursor.setBackgroundColour(31, 31, 31);
@@ -284,6 +301,83 @@ public class Display {
         cursor.move(x, y);
         cursor.setForegroundColour(127, 0, 0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(true);
         terminal.print(message);
+    }
+
+    public void printWinMessage(String message) {
+        cursor.resetStyle();
+
+        cursor.move(100, 10);
+        cursor.setForegroundColour(0, 0, 0); cursor.setBackgroundColour(63, 191, 63); cursor.setBold(true); cursor.setBlinking(true);
+        terminal.print("You WIN!");
+
+        printEndMessage(message);
+    }
+    public void printLoseMessage(String message) {
+        cursor.resetStyle();
+
+        cursor.move(100, 10);
+        cursor.setForegroundColour(0, 0, 0); cursor.setBackgroundColour(223, 63, 63); cursor.setBold(true); cursor.setBlinking(true);
+        terminal.print("You LOSE!");
+
+        printEndMessage(message);
+    }
+    public void printEndMessage(String message) {
+        cursor.move(105 - message.length()/2, 20);
+        cursor.swapColours(); cursor.setBlinking(false);
+        terminal.print(message);
+
+        cursor.move(95, 40);
+        cursor.setForegroundColour(255, 255, 255); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(false);
+        terminal.print("Press enter to exit");
+
+        cursor.move(1, 46);
+        cursor.setForegroundColour(0, 0, 0);
+    }
+
+
+    public void printSetup() {
+        // cursor.resetStyle();
+
+        // // print labels
+        // cursor.setForegroundColour(191, 95, 95); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(true);
+
+        // cursor.move(59, 20);
+        // terminal.print("Player Name");
+        // cursor.move(54, 22);
+        // terminal.print("Number of Arrows");
+
+        // cursor.move(58, 26);
+        // terminal.print("Wumpus Lives");
+        // cursor.move(42, 28);
+        // terminal.print("Wumpus Must Be Killed?");
+
+        // cursor.move(108, 20);
+        // terminal.print("Width [5-20]");
+        // cursor.move(107, 22);
+        // terminal.print("Height [5-20]");
+
+        // cursor.move(97, 26);
+        // terminal.print("Wall Percentage [1-100]");
+
+        // cursor.move(116, 30);
+        // terminal.print("Pits");
+        // cursor.move(116, 32);
+        // terminal.print("Bats");
+        // cursor.move(111, 34);
+        // terminal.print("Artefacts");
+
+        // // print verifications
+        // cursor.swapColours();
+
+        // cursor.move(65, 28);
+        // terminal.print("[Y/N]");
+
+        // cursor.move(114)
+    }
+    public void setSetupCursor() {
+        cursor.resetStyle();
+
+        cursor.setVisible(true);
     }
 
 

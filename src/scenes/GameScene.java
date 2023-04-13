@@ -23,13 +23,13 @@ public class GameScene extends Scene {
     private TextGame game;
 
 
-    public GameScene(Display display, Scanner in, SceneManager manager) {
+    public GameScene(Display display, Scanner in, SceneManager manager, TextGame game) {
         super(display, in, manager);
 
         show_help = false; input_error = false;
         status_message = ""; percept_message = "";
 
-        game = new TextGame();
+        this.game = game;
     }
 
 
@@ -39,10 +39,8 @@ public class GameScene extends Scene {
 
         display.printGameInput(input_position[0], input_position[1]);
         if(  show_help) display.printHelp(help_position[0], help_position[1]);
-        else            display.printGameStatus(input_position[0], input_position[1] + 2, status_message);
+        // else            
         if(input_error) ;//display.printError(98, 35, "Input Error");
-
-        status_message = "";
 
         game.stepGame(this);
         
@@ -51,15 +49,14 @@ public class GameScene extends Scene {
 
 
     public void printBoard(Cave cave, List<List<Boolean>> player_tracks) {
-        display.printGameBoard(board_position[0], board_position[1], cave, player_tracks, percept_message);
+        display.printGameBoard(true, board_position[0], board_position[1], cave, player_tracks, percept_message, game.isBlind());
+        if(!show_help) display.printGameStatus(input_position[0] + 24, input_position[1] + 2, status_message);
         display.setGameCursor(input_position[0] + 36, input_position[1]);
-        percept_message = "";
+        percept_message = ""; status_message = "";
     }
-    public void printLoss(String message) {
-
-    }
-    public void printVictory() {
-
+    public void printEnd(String message) {
+        manager.changeScene(SceneManager.END);
+        manager.setSceneAttribute(SceneManager.END, message);
     }
     public void setStatusMessage(String message) {
         status_message += message + "\n";
@@ -71,6 +68,7 @@ public class GameScene extends Scene {
 
 
     public void getMove() {
+
         // process input
         input = in.nextLine().toLowerCase();
         command = Command.parseCommand(input);
@@ -81,6 +79,10 @@ public class GameScene extends Scene {
         else if(command[0].equals("move")) {
             if(command[1].equals("n") || command[1].equals("e") || command[1].equals("s") || command[1].equals("w"))
                 game.getMove(this, "m", command[1]);
+        }
+        else if(command[0].equals("shoot")) {
+            if(command[1].equals("n") || command[1].equals("e") || command[1].equals("s") || command[1].equals("w"))
+                game.getMove(this, "s", command[1]);
         }
     }
 
