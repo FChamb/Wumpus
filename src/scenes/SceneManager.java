@@ -5,6 +5,9 @@ import java.util.Scanner;
 import display.Display;
 import game.TextGame;
 
+/**
+ * Manages all of the scenes.
+ */
 public class SceneManager {
 
     public static final int MENU  = 0;
@@ -14,15 +17,36 @@ public class SceneManager {
     public static final int SETUP = 4;
 
 
+    /**
+     * The current scene.
+     */
     private int scene;
+    /**
+     * The previous scene.
+     */
     private int previous_scene;
 
+    /**
+     * The list of all {@linkplain Scene scenes}.
+     */
     private Scene[] scenes;
 
+    /**
+     * The {@linkplain Display display}.
+     */
     private Display display;
+    /**
+     * The input of the terminal.
+     */
     private Scanner in;
+    /**
+     * The string that stores the next value of <code>in</code>.
+     */
     private String input;
 
+    /**
+     * The {@linkplain TextGame game}.
+     */
     private TextGame game;
 
 
@@ -44,24 +68,44 @@ public class SceneManager {
     }
 
 
+    /**
+     * Go back to the previous scene.
+     */
     public void revertScene() {
         scene = previous_scene;
     }
+    /**
+     * Set the currents scene.
+     * 
+     * @param scene the scene to change into
+     */
     public void changeScene(int scene) {
         previous_scene = this.scene;
         this.scene = scene;
     }
 
 
+    /**
+     * Execute the current scene.
+     */
     public boolean execute() {
         return scenes[scene].execute();
     }
 
+    /**
+     * Set the attribute of a specific scene.
+     * 
+     * @param scene the target scene
+     * @param attr  the new attribute
+     */
     public void setSceneAttribute(int scene, String attr) {
         scenes[scene].setAttribute(attr);
     }
 
 
+    /**
+     * Dispose the scene manager.
+     */
     public void dispose() {
         display.dispose();
         display = null;
