@@ -39,10 +39,7 @@ public class SceneManager {
      * The input of the terminal.
      */
     private Scanner in;
-    /**
-     * The string that stores the next value of <code>in</code>.
-     */
-    private String input;
+    
 
     /**
      * The {@linkplain TextGame game}.

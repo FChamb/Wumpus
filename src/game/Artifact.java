@@ -21,7 +21,7 @@ public class Artifact {
     }
 
     public Artifact(String type) {
-        for (Artifact artifact : this.artifacts) {
+        for (Artifact artifact : artifacts) {
             if (artifact.toString().equals(type.substring(0, 1))) {
                 this.name = artifact.getName();
                 this.ability = artifact.getAbility();

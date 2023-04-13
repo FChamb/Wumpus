@@ -1,6 +1,5 @@
 package display;
 
-import java.util.Arrays;
 import java.util.List;
 
 import game.Cave;
@@ -121,9 +120,8 @@ public class Display {
             terminal.print(sub_message);
         }
     }
-    public void printGameBoard(int cx, int cy, Cave cave, List<List<Boolean>> player_tracks, String percept_message, boolean is_blind) {
-        printGameBoard(false, cx, cy, cave, player_tracks, percept_message, is_blind);
-    }
+    
+
     public void printGameBoard(boolean show_all, int cx, int cy, Cave cave, List<List<Boolean>> player_tracks, String percept_message, boolean is_blind) {
         int width = player_tracks.size(), height = player_tracks.get(0).size();
         int[] pos = cave.getPlayer().getCoords();

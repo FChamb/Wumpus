@@ -51,14 +51,15 @@ public class GameScene extends Scene {
         // else            
         if(input_error) ;//display.printError(98, 35, "Input Error");
 
-        game.stepGame(this);
+        game.setGameScene(this);
+        game.stepGame();
         
         return false;
     }
 
 
     public void printBoard(Cave cave, List<List<Boolean>> player_tracks) {
-        display.printGameBoard(true, board_position[0], board_position[1], cave, player_tracks, percept_message, game.isBlind());
+        display.printGameBoard(false, board_position[0], board_position[1], cave, player_tracks, percept_message, game.isBlind());
         if(!show_help) display.printGameStatus(input_position[0] + 24, input_position[1] + 2, status_message);
         display.setGameCursor(input_position[0] + 36, input_position[1]);
         percept_message = ""; status_message = "";
@@ -87,11 +88,11 @@ public class GameScene extends Scene {
         else if(command[0].equals("quit"))   manager.changeScene(SceneManager.QUIT);
         else if(command[0].equals("move")) {
             if(command[1].equals("n") || command[1].equals("e") || command[1].equals("s") || command[1].equals("w"))
-                game.getMove(this, "m", command[1]);
+                game.getMove("m", command[1]);
         }
         else if(command[0].equals("shoot")) {
             if(command[1].equals("n") || command[1].equals("e") || command[1].equals("s") || command[1].equals("w"))
-                game.getMove(this, "s", command[1]);
+                game.getMove("s", command[1]);
         }
     }
 
