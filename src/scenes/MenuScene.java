@@ -24,8 +24,8 @@ public class MenuScene extends Scene {
         display.setTitleCursor();
 
         input = in.nextLine().toLowerCase();
-             if(input.equals("q")) manager.changeScene(SceneManager.QUIT);
-        else if(input.equals("n")) manager.changeScene(SceneManager.GAME);
+             if(input.equals("q")) manager.changeScene(SceneManager.QUIT );
+        else if(input.equals("n")) manager.changeScene(SceneManager.SETUP);
         else                       input_error = true;
 
         return false;

@@ -3,13 +3,15 @@ package scenes;
 import java.util.Scanner;
 
 import display.Display;
+import game.TextGame;
 
 public class SceneManager {
 
-    public static final int MENU = 0;
-    public static final int QUIT = 1;
-    public static final int GAME = 2;
-    public static final int END  = 4;
+    public static final int MENU  = 0;
+    public static final int QUIT  = 1;
+    public static final int GAME  = 2;
+    public static final int END   = 3;
+    public static final int SETUP = 4;
 
 
     private int scene;
@@ -21,6 +23,8 @@ public class SceneManager {
     private Scanner in;
     private String input;
 
+    private TextGame game;
+
 
     public SceneManager(int scene) {
         changeScene(scene);
@@ -28,10 +32,14 @@ public class SceneManager {
         display = new Display();
         in = new Scanner(System.in);
 
+        game = new TextGame(false);
+
         scenes = new Scene[] {
-            new MenuScene(display, in, this),
-            new QuitScene(display, in, this),
-            new GameScene(display, in, this)
+            new  MenuScene(display, in, this      ),
+            new  QuitScene(display, in, this      ),
+            new  GameScene(display, in, this, game),
+            new   EndScene(display, in, this      ),
+            new SetupScene(display, in, this, game)
         };
     }
 
@@ -47,6 +55,10 @@ public class SceneManager {
 
     public boolean execute() {
         return scenes[scene].execute();
+    }
+
+    public void setSceneAttribute(int scene, String attr) {
+        scenes[scene].setAttribute(attr);
     }
 
 
