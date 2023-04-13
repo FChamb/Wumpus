@@ -2,8 +2,14 @@ package game;
 
 import display.Terminal;
 
+/**
+ * Manages the command parsing that occurs in-game.
+ */
 public class Command {
 
+    /**
+     * The list of commands.
+     */
     public static final Command[] COMMANDS = new Command[] {
         new Command("help"     , ""         , "Display information about each command."   ,                   "h", "?"),
         new Command("quit"     , ""         , "Return to the main menu."                  ,                   "q"     ),
@@ -11,13 +17,40 @@ public class Command {
         new Command("shoot"    , "<N/S/E/W>", "Shoot an arrow in any cardinal direction." , "fire"    ,       "s", "f")
     };
 
+    /**
+     * The command foreground colour. Used in the {@linkplain Command#printHelp help display}.
+     */
     public static final byte[]  command_fore = new byte[] {(byte)63 , (byte)63 , (byte)63 };
+    /**
+     * The command arguments foreground colour. Used in the {@linkplain Command#printHelp help display}.
+     */
     public static final byte[] argument_fore = new byte[] {(byte)63 , (byte)95 , (byte)159};
+    /**
+     * The command background colour. Used in the {@linkplain Command#printHelp help display}.
+     */
     public static final byte[]  command_back = new byte[] {(byte)191, (byte)127, (byte)127};
+    /**
+     * The pipe foreground colour. Used in the {@linkplain Command#printHelp help display}.
+     */
     public static final byte[]     pipe_fore = new byte[] {(byte)191, (byte)127, (byte)0  };
 
 
-    public String command, arguments, description, aliases[];
+    /**
+     * The command name.
+     */
+    public String command;
+    /**
+     * The command arguments.
+     */
+    public String arguments;
+    /**
+     * The command description. Used in the {@linkplain Command#printHelp help display}.
+     */
+    public String description;
+    /**
+     * The command aliases.
+     */
+    public String aliases[];
 
 
     public Command(String command, String arguments, String description, String... aliases) {
@@ -25,6 +58,12 @@ public class Command {
     }
 
 
+    /**
+     * Parses a string for the command.
+     * 
+     * @param text the string to be parsed
+     * @return     an array of strings where the first element is the found command and the second element is the arguments
+     */
     public static String[] parseCommand(String text) {
         String[] words = text.split(" ");
         if(words.length == 0) return null;
@@ -48,6 +87,13 @@ public class Command {
     }
 
 
+    /**
+     * Prints out the help display to a given {@link Terminal}.
+     * 
+     * @param x        the x position of the help display
+     * @param y        the y position of the help display
+     * @param terminal the {@link Terminal} that the display will be printed to
+     */
     public static void printHelp(int x, int y, Terminal terminal) {
         Terminal.Cursor cursor = terminal.cursor;
 

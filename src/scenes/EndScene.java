@@ -4,6 +4,9 @@ import java.util.Scanner;
 
 import display.Display;
 
+/**
+ * The scene responsible for the end screen.
+ */
 public class EndScene extends Scene {
 
     public EndScene(Display display, Scanner in, SceneManager manager) {

@@ -8,9 +8,18 @@ import game.Cave;
 import game.Command;
 import game.TextGame;
 
+/**
+ * The scene responsible for the game screen.
+ */
 public class GameScene extends Scene {
 
+    /**
+     * The position of the input line.
+     */
     private static final int[] input_position = new int[] {20 , 5 };
+    /**
+     * The position of the help display.
+     */
     private static final int[]  help_position = new int[] {10 , 15};
     private static final int[] board_position = new int[] {140, 25};
 
