@@ -9,8 +9,9 @@ program and provides a retro feel to the game.
 Usage:
 1. Go to the lab pc
 2. Open terminal
-3. cd into Directory
+3. cd into Wumpus/src directory
 4. Clear terminal
+
 Run the following commands in order to operate game (with GUI) :
 1. javac @files
 2. java HuntTheWumpus.java
