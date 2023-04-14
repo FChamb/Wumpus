@@ -17,6 +17,7 @@ public class Wumpus {
 
     /**
      * Constructor that allows the user to choose wumpus icon.
+     * 
      * @param icon - a char for the look of the wumpus
      */
     public Wumpus(char icon) {
@@ -25,10 +26,11 @@ public class Wumpus {
 
     /**
      * Default constructor which takes an icon and number of lives.
-     * @param icon - a char for the look of the wumpus
+     * 
+     * @param icon  - a char for the look of the wumpus
      * @param lives - the number of lives the wumpus has
      */
-    public Wumpus(char icon, int lives){
+    public Wumpus(char icon, int lives) {
         this.icon = icon;
         this.alive = true;
         this.lives = lives;
@@ -36,14 +38,16 @@ public class Wumpus {
 
     /**
      * Constructor that allows the user to choose wumpus lives.
+     * 
      * @param lives - the number of lives the wumpus has
      */
-    public Wumpus(int lives){
+    public Wumpus(int lives) {
         this('!', lives);
     }
 
     /**
      * Getter which returns the icon of the wumpus
+     * 
      * @return - char value for look of wumpus
      */
     public char getIcon() {
@@ -52,6 +56,7 @@ public class Wumpus {
 
     /**
      * Setter which sets the icon for the wumpus
+     * 
      * @param icon - char value for look of wumpus
      */
     public void setIcon(char icon) {
@@ -60,6 +65,7 @@ public class Wumpus {
 
     /**
      * Getter which returns whether the wumpus is alive or not
+     * 
      * @return - a boolean value for if wumpus is alive
      */
     public boolean isAlive() {
@@ -68,6 +74,7 @@ public class Wumpus {
 
     /**
      * Setter which sets the wumpus alive or dead
+     * 
      * @param alive - a boolean value for if wumpus is alive
      */
     public void setAlive(boolean alive) {
@@ -77,11 +84,12 @@ public class Wumpus {
     /**
      * Setter for setting the number of lives the wumpus has. If
      * less than 1, wumpus is killed.
+     * 
      * @param lives - an int of the number of lives the wumpus has
      */
-    public void setLives(int lives){
+    public void setLives(int lives) {
         // If the lives is set to 0 or below
-        if(lives < 1){
+        if (lives < 1) {
             alive = false;
         }
         this.lives = lives;
@@ -89,22 +97,24 @@ public class Wumpus {
 
     /**
      * A getter which returns the number of lives the wumpus has
+     * 
      * @return - returns an integer with the number of lives the wumpus has
      */
-    public int getLives(){
+    public int getLives() {
         return this.lives;
     }
 
     /**
      * Return whether the wumpus is alive after being hit.
+     * 
      * @return - a boolean value if the wumpus is alive or dead
      */
-    public boolean hitWumpus(){
-        if(lives > 1){
+    public boolean hitWumpus() {
+        if (lives > 1) {
             lives--;
             return true;
         }
-        if(lives == 1){
+        if (lives == 1) {
             lives--;
             this.alive = false;
             return true;
@@ -114,15 +124,17 @@ public class Wumpus {
 
     /**
      * Setter which takes x,y coords and sets the location of the wumpus.
+     * 
      * @param x - the height the wumpus is in the cave
      * @param y - the length the wumpus is in the cave
      */
     public void setCoords(int x, int y) {
-        this.coords = new int[]{x, y};
+        this.coords = new int[] { x, y };
     }
 
     /**
      * Getter which returns an array of ints with the coords of the wumpus.
+     * 
      * @return - an int array of the coords
      */
     public int[] getCoords() {
@@ -131,10 +143,11 @@ public class Wumpus {
 
     /**
      * Returns the look of the wumpus of the board.
+     * 
      * @return - a string value for the look of the wumpus.
      */
     public String toString() {
-        if(alive){
+        if (alive) {
             return " " + this.icon + " ";
         }
         return " . ";
