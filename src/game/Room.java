@@ -2,6 +2,7 @@ package game;
 
 public class Room {
 
+    // Different room types
     public static final char BSC = '.';
     public static final char WLL = ' ';
     public static final char PIT = 'o';
@@ -9,46 +10,70 @@ public class Room {
     public static final char TSR = 'G';
     public static final char EXT = 'X';
 
-
-    /**
-     * A room can be one of four different types.
-     * "." basic room with no special properties
-     * "o" pit room - immediate death to player
-     * "w" super bat room - carries the player to a random location
-     * "G" treasure room - pt 1 of winning
-     * "X" exit - pt 2 of winning
-     * " " wall
-     */
     private final String Type;
     private Artifact artifact = null;
 
+    /**
+     * Constructor for a basic room
+     */
     public Room() {
-        this.Type = ""+BSC;
+        this(""+BSC);
     }
+
+    /**
+     * Constructor for a room given a type as a char
+     */
     public Room(char Type) {
-        this.Type = ""+Type;
+        this(""+Type);
     }
+
+    /**
+     * Constructor for a room given a type as a string
+     */
     public Room(String Type) {
         this.Type = Type;
     }
 
+    /**
+     * Constructor for a room given a type and an artefact
+     */
     public Room(String Type, Artifact artifact) {
         this(Type);
         this.artifact = artifact;
     }
 
+    /**
+     * Gets the type of the room
+     * 
+     * @return the type of the room
+     */
     public String getType() {
         return this.Type;
     }
 
+    /**
+     * Gets the artefact in the room
+     * 
+     * @return the artefact in the room
+     */
     public Artifact getArtifact() {
         return this.artifact;
     }
 
+    /**
+     * Sets the artefact in the room
+     * 
+     * @param artifact - the artefact in the room
+     */
     public void setArtifact(Artifact artifact) {
         this.artifact = artifact;
     }
 
+    /**
+     * Creates a srting from the room type or artefact
+     * 
+     * @return a string of the room type or artefact
+     */
     public String toString() {
         if (artifact == null) {
             return " " + this.Type + " ";

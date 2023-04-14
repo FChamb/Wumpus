@@ -12,6 +12,7 @@ public class Player {
     /**
      * Constructor that allows the user to choose player name. The icon is
      * set to the first letter in the name
+     * 
      * @param name - a string for the look of the player
      */
     public Player(String name) {
@@ -21,8 +22,9 @@ public class Player {
     /**
      * Constructor which takes a username, number of arrows, and if the treasure
      * is found.
-     * @param name - a string with the name of the player
-     * @param numOfArrows - number of arrows a user has
+     * 
+     * @param name          - a string with the name of the player
+     * @param numOfArrows   - number of arrows a user has
      * @param foundTreasure - if the treasure has been found
      */
     public Player(String name, int numOfArrows, boolean foundTreasure) {
@@ -40,15 +42,17 @@ public class Player {
 
     /**
      * Set arrows sets the number of arrows for a player.
+     * 
      * @param arrows
      */
-    public void setArrows(int arrows){
+    public void setArrows(int arrows) {
         this.numOfArrows = arrows;
     }
 
     /**
      * Use arrow decreases the number of arrows by one and returns true is the user
      * has arrows left over, false otherwise.
+     * 
      * @return
      */
     public boolean useArrow() {
@@ -61,6 +65,7 @@ public class Player {
 
     /**
      * Getter which returns the number of arrows a player has.
+     * 
      * @return - an int with the number of arrows
      */
     public int getNumOfArrows() {
@@ -69,15 +74,17 @@ public class Player {
 
     /**
      * Sets the coordinates of the player with a given height and width.
+     * 
      * @param x - the height of the player
      * @param y - the width of the player
      */
     public void setCoords(int x, int y) {
-        this.coords = new int[]{x, y};
+        this.coords = new int[] { x, y };
     }
 
     /**
      * Getter that returns the coords of the player
+     * 
      * @return - an int array with the players coords
      */
     public int[] getCoords() {
@@ -86,21 +93,23 @@ public class Player {
 
     /**
      * Getter which returns if the treasure has been found.
+     * 
      * @return - boolean for treasure found
      */
-    public boolean hadFoundTreasure(){
+    public boolean hadFoundTreasure() {
         return foundTreasure;
     }
 
     /**
      * Setter which sets the foundTreasure to true.
      */
-    public void findTreasure(){
+    public void findTreasure() {
         this.foundTreasure = true;
     }
 
     /**
      * Getter which returns the array list of artifacts the player has.
+     * 
      * @return - array list of artifacts
      */
     public ArrayList<Artifact> getInventory() {
@@ -109,7 +118,8 @@ public class Player {
 
     /**
      * Add item add an artifact to the players inventory.
-     * @param artifact -  a given artifact
+     * 
+     * @param artifact - a given artifact
      */
     public void addItem(Artifact artifact) {
         this.inventory.add(artifact);
@@ -117,12 +127,19 @@ public class Player {
 
     /**
      * Sets the players name.
+     * 
      * @param name - a given name for a user
      */
     public void setName(String name) {
         this.icon = name.charAt(0);
     }
 
+    /**
+     * Checks the players inventory for a given artefact
+     * 
+     * @param artifact - the artefact being looked for
+     * @return if the player's inventory contains the artefact
+     */
     public boolean containArtifact(Artifact artifact) {
         if (this.inventory.contains(artifact)) {
             return true;
@@ -131,33 +148,48 @@ public class Player {
         }
     }
 
+    /**
+     * Gets the players icon
+     * 
+     * @return the players icon
+     */
     public char getIcon() {
         return icon;
     }
-    
+
     /**
      * Puts the player into a string and returns.
-     * @return
+     * 
+     * @return the players icon as a string
      */
     public String toString() {
         return " " + this.icon + " ";
     }
 
-    // Method to check if the player has a shield
-    public boolean hasShield(){
-        for(Artifact artefact : this.inventory){
-            if(artefact.getName().equals("D")){
+    /**
+     * Checks if the player has a shield
+     * 
+     * @return whether the player has a shield as a boolean
+     */
+    public boolean hasShield() {
+        for (Artifact artefact : this.inventory) {
+            if (artefact.getName().equals("D")) {
                 return true;
             }
         }
         return false;
     }
 
-    // Method to use a shield if the player has one (returns true if shield used and false if not)
-    public boolean useShield(){
-        for(Artifact artefact : this.inventory){
+    /**
+     * Attempts to use the players shield
+     * 
+     * @return a boolean depending on whether the player was successful in using the
+     *         shield
+     */
+    public boolean useShield() {
+        for (Artifact artefact : this.inventory) {
             // If the player has a shield use it and return true
-            if(artefact.getName().equals("D")){
+            if (artefact.getName().equals("D")) {
                 inventory.remove(artefact);
                 return true;
             }

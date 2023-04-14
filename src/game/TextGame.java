@@ -675,7 +675,7 @@ public class TextGame {
         int height = setDimensions(true);
         int width = setDimensions(false);
         aiPlayer = new AI(height, width);
-        int total = height * width - (height + width);
+        int total = height * width - (height + width) - 1;
         int walls = (int) ((setWalls(total) / 100) * total);
         total -= walls;
         int bats = setLayout(false, total);
