@@ -6,8 +6,14 @@ import display.Display;
 import game.Player;
 import game.TextGame;
 
+/**
+ * The scene responsible with setting up the game.
+ */
 public class SetupScene extends Scene {
 
+    /**
+     * The {@linkplain TextGame game}.
+     */
     private TextGame game;
 
 

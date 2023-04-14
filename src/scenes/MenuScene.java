@@ -4,8 +4,14 @@ import java.util.Scanner;
 
 import display.Display;
 
+/**
+ * The scene responsible for the main menu.
+ */
 public class MenuScene extends Scene {
 
+    /**
+     * Decides whether the "Input Error" message should print.
+     */
     private boolean input_error;
 
 

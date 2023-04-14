@@ -4,6 +4,9 @@ import java.util.Scanner;
 
 import display.Display;
 
+/**
+ * The scene responsible for exiting the program.
+ */
 public class QuitScene extends Scene {
 
     public QuitScene(Display display, Scanner in, SceneManager manager) {

@@ -9,7 +9,9 @@
 ./game/Room.java
 ./game/AI.java
 ./game/Command.java
+./scenes/SetupScene.java
 ./scenes/SceneManager.java
+./scenes/EndScene.java
 ./scenes/QuitScene.java
 ./scenes/GameScene.java
 ./scenes/MenuScene.java

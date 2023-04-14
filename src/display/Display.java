@@ -6,8 +6,14 @@ import game.Cave;
 import game.Command;
 import game.Room;
 
+/**
+ * Wrapper class for {@link Terminal}.
+ */
 public class Display {
 
+    /**
+     * The "HUNT THE WUMPUS" title text.
+     */
     private static final String titleBlock = """
  ╔═╗ ╔═╗ ╔═╗ ╔═╗ ╔═╗ ╔═╗ ╔═════╗    ╔═════╗ ╔═╗ ╔═╗ ╔═════╗    ╔═╗╔═╗╔═╗ ╔═╗ ╔═╗ ╔═╗   ╔═╗ ╔═════╗ ╔═╗ ╔═╗ ╔═════╗
 ┌╢ ╚═╝ ║┌╢ ║┌╢ ║┌╢ ╚╗║ ║┌╚═╗ ╔╤╝   ┌╚═╗ ╔╤╝┌╢ ╚═╝ ║┌╢ ╔═══╝   ┌╢ ╠╝ ╚╣ ║┌╢ ║┌╢ ║┌╢ ╚╗ ╔╝ ║┌╢ ╔═╗ ║┌╢ ║┌║ ║┌╢ ╔═══╝
@@ -18,7 +24,13 @@ public class Display {
 """;
 
 
+    /**
+     * The {@link Terminal terminal}.
+     */
     private Terminal terminal;
+    /**
+     * The {@link Terminal.Cursor cursor}.
+     */
     private Terminal.Cursor cursor;
 
 
@@ -31,6 +43,9 @@ public class Display {
     }
 
 
+    /**
+     * Prints the {@linkplain scenes.MenuScene menu scene}.
+     */
     public void printTitleScreen() {
         cursor.resetStyle();
 
@@ -59,6 +74,9 @@ public class Display {
         cursor.setForegroundColour(255, 255, 255); cursor.setBold(false);
         terminal.print(": ");
     }
+    /**
+     * Sets the {@linkplain scenes.MenuScene menu scene's} cursor.
+     */
     public void setTitleCursor() {
         cursor.resetStyle();
 
@@ -73,11 +91,16 @@ public class Display {
     }
 
 
+    /**
+     * Prints the {@linkplain scenes.GameScene game scene's} input line.
+     * 
+     * @param x the x position
+     * @param y the y position
+     */
     public void printGameInput(int x, int y) {
         cursor.resetStyle();
 
-        cursor.move(x  , y);
-        // cursor.move(58, 30);
+        cursor.move(x, y);
         cursor.setForegroundColour(191, 127,   0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(true);
         terminal.print("Enter Command ");
         
@@ -92,20 +115,31 @@ public class Display {
         cursor.setForegroundColour(255, 255, 255); cursor.setBackgroundColour(0, 0, 0);
         terminal.print(":");
     }
+    /**
+     * Sets the {@linkplain scenes.GameScene game scene's} cursor.
+     * 
+     * @param x the x position
+     * @param y the y position
+     */
     public void setGameCursor(int x, int y) {
         cursor.resetStyle();
 
         cursor.move(x, y);
-        // cursor.move(93, 30);
 
         cursor.setUnderline(true);
         cursor.setForegroundColour(255, 255, 255); cursor.setBackgroundColour(0, 0, 0);
         terminal.print("          ");
 
         cursor.move(x, y);
-        // cursor.move(93, 30);
         cursor.setVisible(true);
     }
+    /**
+     * Prints a status message. Used in {@link scenes.GameScene}.
+     * 
+     * @param x       the x position
+     * @param y       the y position
+     * @param message the status message
+     */
     public void printGameStatus(int x, int y, String message) {
         cursor.resetStyle();
 
@@ -122,6 +156,17 @@ public class Display {
     }
     
 
+    /**
+     * Prints the game board as well as the percepts. Used in {@link scenes.GameScene}.
+     * 
+     * @param show_all        decides if each room should be displayed
+     * @param cx              the center's x position
+     * @param cy              the center's y position
+     * @param cave            the {@linkplain game.TextGame game's} {@link game.Cave Cave} object.
+     * @param player_tracks   the player's tracks
+     * @param percept_message the player's percepts
+     * @param is_blind        decides if the entire board should be printed
+     */
     public void printGameBoard(boolean show_all, int cx, int cy, Cave cave, List<List<Boolean>> player_tracks, String percept_message, boolean is_blind) {
         int width = player_tracks.size(), height = player_tracks.get(0).size();
         int[] pos = cave.getPlayer().getCoords();
@@ -172,23 +217,9 @@ public class Display {
                 for(i = 0; i < width; i++) {
                     cursor.move(x + 2*i, y + j);
                     if(rooms[j][i].getType().equals(""+Room.WLL)) {
-                        terminal.print(" "); //▓
+                        terminal.print(" ");
                     }
-                    if(show_all) {
-                        terminal.print(rooms[j][i].toString().substring(1,2));
-                        // if(rooms[j][i].getType().equals(""+Room.BAT)) {
-                        //     terminal.print(""+Room.BAT/*"≡"*/); //▓
-                        // }
-                        // if(rooms[j][i].getType().equals(""+Room.PIT)) {
-                        //     terminal.print("o"); //▓
-                        // }
-                        // if(rooms[j][i].getType().equals(""+Room.TSR)) {
-                        //     terminal.print("&"); //▓
-                        // }
-                        // if(rooms[j][i].getType().equals(""+Room.EXT)) {
-                        //     terminal.print("X"); //▓
-                        // }
-                    }
+                    if(show_all) terminal.print(rooms[j][i].toString().substring(1,2));
                 }
             
             // print wumpus
@@ -224,10 +255,6 @@ public class Display {
         
         terminal.print(""+cave.getPlayer().getIcon());
 
-        // // set cursor for percepts
-        // cursor.move(x+10, y-6);
-        // cursor.setForegroundColour(255, 31, 31); cursor.setBackgroundColour(0, 0, 0);// cursor.setBold(true);
-
         // print percepts
         cursor.setForegroundColour(255, 31, 31); cursor.setBackgroundColour(0, 0, 0);
 
@@ -241,6 +268,9 @@ public class Display {
     }
 
 
+    /**
+     * Prints the {@linkplain scenes.QuitScene quit scene}.
+     */
     public void printQuitScreen() {
         cursor.resetStyle();
 
@@ -260,6 +290,9 @@ public class Display {
         cursor.setBackgroundColour(191, 0, 0);
         terminal.print("N");
     }
+    /**
+     * Sets the {@linkplain scenes.QuitScene quit scene's} cursor.
+     */
     public void setQuitCursor() {
         cursor.resetStyle();
 
@@ -274,33 +307,35 @@ public class Display {
     }
 
 
+    /**
+     * Prints the {@linkplain game.Command#printHelp help display}. Used by {@link scenes.GameScene}.
+     * 
+     * @param x the x position
+     * @param y the y position
+     */
     public void printHelp(int x, int y) {
         Command.printHelp(x, y, terminal);
-        // cursor.resetStyle();
-
-        // cursor.move(65, 40);
-        // cursor.setForegroundColour(0, 0, 0); cursor.setBackgroundColour(191, 127, 127); cursor.setBold(true);
-        // terminal.printFixed("help\n\n  H\n\n  ?\n\nquit\n\n  Q");
-
-        // cursor.swapColours(); cursor.setBold(false);
-        // cursor.move(74, 40);
-        // terminal.print("--"); cursor.shift(5, 0); terminal.print("Display information about each command.");
-        // cursor.move(74, 46);
-        // terminal.print("--"); cursor.shift(5, 0); terminal.print("Return to the main menu.");
-
-        // cursor.move(65, 41);
-        // cursor.setForegroundColour(191, 127, 0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(false);
-        // terminal.printFixed("│\n├─\n│\n└─\n\n\n│\n└─");
     }
 
+    /**
+     * Prints an error message.
+     * 
+     * @param x       the x position
+     * @param y       the y position
+     * @param message the error message
+     */
     public void printError(int x, int y, String message) {
         cursor.resetStyle();
-        // 98 30
         cursor.move(x, y);
         cursor.setForegroundColour(127, 0, 0); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(true);
         terminal.print(message);
     }
 
+    /**
+     * Prints the win message. Used by {@link scenes.EndScene}.
+     * 
+     * @param message the {@linkplain #printEndMessage end message}
+     */
     public void printWinMessage(String message) {
         cursor.resetStyle();
 
@@ -310,6 +345,11 @@ public class Display {
 
         printEndMessage(message);
     }
+    /**
+     * Prints the lose message. Used by {@link scenes.EndScene}.
+     * 
+     * @param message the {@linkplain #printEndMessage end message}
+     */
     public void printLoseMessage(String message) {
         cursor.resetStyle();
 
@@ -319,6 +359,11 @@ public class Display {
 
         printEndMessage(message);
     }
+    /**
+     * Prints the end message. Used by {@link scenes.EndScene}.
+     * 
+     * @param message the end message
+     */
     public void printEndMessage(String message) {
         cursor.move(105 - message.length()/2, 20);
         cursor.swapColours(); cursor.setBlinking(false);
@@ -333,45 +378,9 @@ public class Display {
     }
 
 
-    public void printSetup() {
-        // cursor.resetStyle();
-
-        // // print labels
-        // cursor.setForegroundColour(191, 95, 95); cursor.setBackgroundColour(0, 0, 0); cursor.setBold(true);
-
-        // cursor.move(59, 20);
-        // terminal.print("Player Name");
-        // cursor.move(54, 22);
-        // terminal.print("Number of Arrows");
-
-        // cursor.move(58, 26);
-        // terminal.print("Wumpus Lives");
-        // cursor.move(42, 28);
-        // terminal.print("Wumpus Must Be Killed?");
-
-        // cursor.move(108, 20);
-        // terminal.print("Width [5-20]");
-        // cursor.move(107, 22);
-        // terminal.print("Height [5-20]");
-
-        // cursor.move(97, 26);
-        // terminal.print("Wall Percentage [1-100]");
-
-        // cursor.move(116, 30);
-        // terminal.print("Pits");
-        // cursor.move(116, 32);
-        // terminal.print("Bats");
-        // cursor.move(111, 34);
-        // terminal.print("Artefacts");
-
-        // // print verifications
-        // cursor.swapColours();
-
-        // cursor.move(65, 28);
-        // terminal.print("[Y/N]");
-
-        // cursor.move(114)
-    }
+    /**
+     * Sets the {@linkplain scenes.SetupScene setup scene's} cursor.
+     */
     public void setSetupCursor() {
         cursor.resetStyle();
 
@@ -379,11 +388,17 @@ public class Display {
     }
 
 
+    /**
+     * Clears the screen.
+     */
     public void clearScreen() {
         terminal.clearScreen(0, 0, 0);
     }
 
 
+    /**
+     * Dispose the display.
+     */
     public void dispose() {
         terminal.dispose();
         terminal = null;

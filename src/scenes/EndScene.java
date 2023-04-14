@@ -19,7 +19,6 @@ public class EndScene extends Scene {
         display.clearScreen();
         if(global_attribute.charAt(0) == '!') display. printWinMessage(global_attribute.substring(1));
         else                                  display.printLoseMessage(global_attribute.substring(1));
-        // display.printGameStatus(105, 25, global_attribute);
 
         in.nextLine();
 
